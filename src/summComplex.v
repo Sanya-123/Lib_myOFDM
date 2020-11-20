@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 //TODO добавить размерность данных
-module summComplex(
+module summComplex #(parameter DATA_FFT_SIZE = 16)(
     clk,
     en,
     data_in0_i,
@@ -30,18 +30,16 @@ module summComplex(
     data_out0_i,
     data_out0_q
     );
-    
-`include "common.vh"
 
     input clk;
     input en;
     //DATA_FFT_SIZE = 16
-    input [16-1:0] data_in0_i;
-    input [16-1:0] data_in0_q;
-    input [16-1:0] data_in1_i;
-    input [16-1:0] data_in1_q;
-    output reg [16-1:0] data_out0_i;
-    output reg [16-1:0] data_out0_q;
+    input [DATA_FFT_SIZE-1:0] data_in0_i;
+    input [DATA_FFT_SIZE-1:0] data_in0_q;
+    input [DATA_FFT_SIZE-1:0] data_in1_i;
+    input [DATA_FFT_SIZE-1:0] data_in1_q;
+    output reg [DATA_FFT_SIZE-1:0] data_out0_i;
+    output reg [DATA_FFT_SIZE-1:0] data_out0_q;
     
     always @(posedge clk)
     begin

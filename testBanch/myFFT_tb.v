@@ -22,11 +22,24 @@
 
 module myFFT_tb();
 
+parameter SIZE_BUFFER = 6;
+parameter NFFT = 2**SIZE_BUFFER;
+
+parameter SIZE_DATA  =  16;
+parameter SIZE_DATA_OUT  =  16 + SIZE_BUFFER - 2;
+parameter COMPENS_PF = "add";
+
 reg clk = 0;
-reg [15:0] data_i = 0;
-reg [15:0] data_q = 0;
-wire [15:0] res_data_i;
-wire [15:0] res_data_q; 
+reg [SIZE_DATA-1:0] data_i = 0;
+reg [SIZE_DATA-1:0] data_q = 0;
+wire [SIZE_DATA_OUT-1:0] res_data_i;
+wire [SIZE_DATA_OUT-1:0] res_data_q; 
+
+wire [SIZE_DATA-1:0] res_data_i_div;
+wire [SIZE_DATA-1:0] res_data_q_div; 
+assign res_data_i_div = res_data_i[SIZE_DATA_OUT-1:SIZE_BUFFER - 2];
+assign res_data_q_div = res_data_q[SIZE_DATA_OUT-1:SIZE_BUFFER - 2];
+
 wire complete;
 wire [2:0] stateFFT;
 
@@ -39,16 +52,13 @@ reg  flag_ready_read = 1'b1;
 //initial
 //    data_i_mas = {{{16'b0}}, {{16'b0}}, {{16'b0}}, {{16'b0}}};
 
-reg [15:0] data_i_mas [63:0];
-reg [15:0] data_q_mas [63:0];
+reg [15:0] data_i_mas [255:0];
+reg [15:0] data_q_mas [255:0];
 initial
 begin
 $readmemh("data_i.mem",data_i_mas);
 $readmemh("data_q.mem",data_q_mas);
 end
-
-parameter SIZE_BUFFER = 6;
-parameter NFFT = 2**SIZE_BUFFER;
 
     always
         #5 clk = !clk;
@@ -57,7 +67,7 @@ parameter NFFT = 2**SIZE_BUFFER;
         
     always
     begin
-        #30
+        #10
         
 //        vakidData = 1'b1;
 //        data_i = data_i_mas[0];
@@ -90,31 +100,50 @@ parameter NFFT = 2**SIZE_BUFFER;
         begin
             data_i = data_i_mas[i];
             data_q = data_q_mas[i];
+//            data_i[16] = data_i[15];
+//            data_q[16] = data_q[15]; 
             #10;
         end
         
         vakidData = 1'b0;
         
-//        #420
-////        #440
-//        vakidData = 1'b1;
-//        for(i = NFFT; i < NFFT*2; i = i + 1)
-//        begin
-//            data_i = data_i_mas[i];
-//            data_q = data_q_mas[i];
-//            #10;
-//        end
-//        vakidData = 1'b0;
+        #1690
+        vakidData = 1'b1;
+        for(i = NFFT; i < NFFT*2; i = i + 1)
+        begin
+            data_i = data_i_mas[i];
+            data_q = data_q_mas[i];
+            #10;
+        end
+        vakidData = 1'b0;
         
-//        #420
+        #1690
+        vakidData = 1'b1;
+        for(i = NFFT*2; i < NFFT*3; i = i + 1)
+        begin
+            data_i = data_i_mas[i];
+            data_q = data_q_mas[i];
+            #10;
+        end
+        vakidData = 1'b0;
+        
+        #3490;
+//        #10000;
+        
+//        #6590
+//        #1740
 //        vakidData = 1'b1;
-//        for(i = NFFT*2; i < NFFT*3; i = i + 1)
+//        for(i = 0; i < NFFT; i = i + 1)
 //        begin
 //            data_i = data_i_mas[i];
 //            data_q = data_q_mas[i];
 //            #10;
 //        end
 //        vakidData = 1'b0;
+//        #6590;
+//        #1740;
+        
+//        #3490
         
 //        #90
 //        vakidData = 1'b1;
@@ -127,10 +156,11 @@ parameter NFFT = 2**SIZE_BUFFER;
 //        vakidData = 1'b0;
 
         
-        #20
-        vakidData = 1'b0;
+//        #20
+//        vakidData = 1'b0;
 //        #2300;
-        #5600;
+
+//        #5600;
     end
     
 //    initial
@@ -147,13 +177,37 @@ parameter NFFT = 2**SIZE_BUFFER;
 ////        #50
 ////        flag_ready_read <= 1'b1;
 //    end
+
+    integer f_i, f_q, j;
     
-    initial
-    begin
-    #10000;
-//    $stop;
-//    $finish;
-    end
+    
+//    //write fft data fo file
+//    initial
+//    begin
+//        f_i = $fopen("sim_res_data_i.txt", "w");
+//        f_q = $fopen("sim_res_data_q.txt", "w");
+        
+//        #20
+        
+//        while(complete == 1'b0)
+//        begin
+//            #10;
+//        end
+
+////        #16060;
+//        for(j = 0; j < NFFT; j = j + 1)
+//        begin
+//            $fwrite(f_i, "%d\n", res_data_i_div);
+//            $fwrite(f_q, "%d\n", res_data_q_div);
+//            #10;
+//        end
+        
+//        #20
+//        $fclose(f_i);
+//        $fclose(f_q);
+//        $stop;
+////    $finish;
+//    end
     
     wire _flag_complete_chet;
     wire _flag_complete_Nchet;
@@ -172,10 +226,10 @@ parameter NFFT = 2**SIZE_BUFFER;
 //    wire _flag_valid_NNNchet2;
 //wire [2:0] _counterMultData;
 
-    wire [16-1:0] _out_summ_0__NFFT_2_i;
-    wire [16-1:0] _out_summ_0__NFFT_2_q;
-    wire [16-1:0] _out_summ_NFFT_2__NFFT_i;
-    wire [16-1:0] _out_summ_NFFT_2__NFFT_q;
+    wire [SIZE_DATA-1:0] _out_summ_0__NFFT_2_i;
+    wire [SIZE_DATA-1:0] _out_summ_0__NFFT_2_q;
+    wire [SIZE_DATA-1:0] _out_summ_NFFT_2__NFFT_i;
+    wire [SIZE_DATA-1:0] _out_summ_NFFT_2__NFFT_q;
     
     wire _resiveFromChet;
     wire _resiveFromNChet;
@@ -203,7 +257,7 @@ wire [SIZE_BUFFER:0] _counterMultData;
 //wire _dataComplete;
 
 myFFT
-#(.SIZE_BUFFER(SIZE_BUFFER), .TYPE("forvard")/*forvard invers*/, .FAST("ultrafast")/*slow fast ultrafast*/)
+#(.SIZE_BUFFER(SIZE_BUFFER), .DATA_FFT_SIZE(SIZE_DATA), .TYPE("forvard")/*forvard invers*/, .FAST("ultrafast")/*slow fast ultrafast*/, .COMPENS_FP(COMPENS_PF)/*false true or add razrad*/)
 _myFFT
 (
     .clk(clk),

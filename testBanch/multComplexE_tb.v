@@ -65,7 +65,7 @@ wire module_en;
         
     end
 
-multComplexE #(.SIZE_DATA_FI(3)/*LOG2(NFFT)*/, .FORVARD("true"))
+multComplexE #(.SIZE_DATA_FI(3)/*LOG2(NFFT)*/, .DATA_FFT_SIZE(16), .TYPE("forvard"), .COMPENS_FP("add")/*false add*/)
 _multComplexE
     (
     .clk(clk),
@@ -77,43 +77,40 @@ _multComplexE
     .out_data_minus_q(res_m_phi_q),
     .out_data_plus_i(res_p_phi_i),
     .out_data_plus_q(res_p_phi_q),
-    .outValid(dataComplete),
-    .minusReady(minusReady),
-    .plusReady(plusReady),
-    .module_en(module_en)
+    .outValid(dataComplete)
     );
     
     
-    wire [31:0]outData_i;
-    wire [31:0]outData_q;
+//    wire [31:0]outData_i;
+//    wire [31:0]outData_q;
     
-    wire [15:0] out_data_minus_i;
-    wire [15:0] out_data_minus_q;
+//    wire [15:0] out_data_minus_i;
+//    wire [15:0] out_data_minus_q;
     
-    assign out_data_minus_i = outData_q[30:15];
-    assign out_data_minus_q = outData_i[30:15];
+//    assign out_data_minus_i = outData_q[30:15];
+//    assign out_data_minus_q = outData_i[30:15];
     
-multComplex #(.SIZE_DATA(16))
-    _multComplex(
-    .clk(clk),
-    .en(1'b1),
-    .in_data1_i(16'd749),
-    .in_data1_q(-16'd749),
-    .in_data2_i(17'd0),
-    .in_data2_q(-17'd32768),
-    .out_data_i(outData_i),
-    .out_data_q(outData_q)
-    );
+//multComplex #(.SIZE_DATA(16))
+//    _multComplex(
+//    .clk(clk),
+//    .en(1'b1),
+//    .in_data1_i(16'd749),
+//    .in_data1_q(-16'd749),
+//    .in_data2_i(17'd0),
+//    .in_data2_q(-17'd32768),
+//    .out_data_i(outData_i),
+//    .out_data_q(outData_q)
+//    );
     
-    wire [32:0] multRes;
+//    wire [32:0] multRes;
     
-    mult_fft 
-    _mult_fft (
-        .CLK(clk),
-        .A(16'd500),
-        .B(17'd3500),
-        .P(multRes)
-    );
+//    mult_fft 
+//    _mult_fft (
+//        .CLK(clk),
+//        .A(16'd500),
+//        .B(17'd3500),
+//        .P(multRes)
+//    );
     
     
     
