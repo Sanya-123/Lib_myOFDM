@@ -22,7 +22,7 @@
 
 module myFFT_tb();
 
-parameter SIZE_BUFFER = 6;
+parameter SIZE_BUFFER = 8;
 parameter NFFT = 2**SIZE_BUFFER;
 
 parameter SIZE_DATA  =  16;
@@ -69,32 +69,6 @@ end
     begin
         #10
         
-//        vakidData = 1'b1;
-//        data_i = data_i_mas[0];
-//        data_q = data_q_mas[0];
-//        #10;
-//        vakidData = 1'b0;
-//        #10
-//        vakidData = 1'b1;
-//        data_i = data_i_mas[2];
-//        data_q = data_q_mas[2];
-//        #10;
-//        vakidData = 1'b0;
-//        #10
-//        vakidData = 1'b1;
-//        data_i = data_i_mas[4];
-//        data_q = data_q_mas[4];
-//        #10;
-//        vakidData = 1'b0;
-//        #10
-//        vakidData = 1'b1;
-//        data_i = data_i_mas[6];
-//        data_q = data_q_mas[6];
-//        #10;
-//        vakidData = 1'b0;
-//        #10
-        
-        
         vakidData = 1'b1;
         for(i = 0; i < NFFT; i = i + 1)
         begin
@@ -107,40 +81,44 @@ end
         
         vakidData = 1'b0;
         
-        #1690
-        vakidData = 1'b1;
-        for(i = NFFT; i < NFFT*2; i = i + 1)
-        begin
-            data_i = data_i_mas[i];
-            data_q = data_q_mas[i];
-            #10;
-        end
-        vakidData = 1'b0;
+//        #400;
         
-        #1690
-        vakidData = 1'b1;
-        for(i = NFFT*2; i < NFFT*3; i = i + 1)
-        begin
-            data_i = data_i_mas[i];
-            data_q = data_q_mas[i];
-            #10;
-        end
-        vakidData = 1'b0;
-        
-        #3490;
-//        #10000;
-        
-//        #6590
-//        #1740
+//        #40
 //        vakidData = 1'b1;
-//        for(i = 0; i < NFFT; i = i + 1)
+//        for(i = NFFT; i < NFFT*2; i = i + 1)
 //        begin
 //            data_i = data_i_mas[i];
 //            data_q = data_q_mas[i];
 //            #10;
 //        end
 //        vakidData = 1'b0;
-//        #6590;
+        
+//        #40
+//        vakidData = 1'b1;
+//        for(i = NFFT*2; i < NFFT*3; i = i + 1)
+//        begin
+//            data_i = data_i_mas[i];
+//            data_q = data_q_mas[i];
+//            #10;
+//        end
+//        vakidData = 1'b0;
+        
+//        #3490;
+//        #10000;
+
+//        #1740   
+     
+        #6490
+        vakidData = 1'b1;
+        for(i = 0; i < NFFT; i = i + 1)
+        begin
+            data_i = data_i_mas[i];
+            data_q = data_q_mas[i];
+            #10;
+        end
+        vakidData = 1'b0;
+        #6490;
+        
 //        #1740;
         
 //        #3490
@@ -257,7 +235,8 @@ wire [SIZE_BUFFER:0] _counterMultData;
 //wire _dataComplete;
 
 myFFT
-#(.SIZE_BUFFER(SIZE_BUFFER), .DATA_FFT_SIZE(SIZE_DATA), .TYPE("forvard")/*forvard invers*/, .FAST("ultrafast")/*slow fast ultrafast*/, .COMPENS_FP(COMPENS_PF)/*false true or add razrad*/)
+#(.SIZE_BUFFER(SIZE_BUFFER), .DATA_FFT_SIZE(SIZE_DATA), .TYPE("forvard")/*forvard invers*/, .FAST("ultrafast")/*slow fast ultrafast*/, 
+  .COMPENS_FP(COMPENS_PF)/*false true or add razrad*/, .MIN_FFT_x4(1))
 _myFFT
 (
     .clk(clk),
@@ -272,22 +251,22 @@ _myFFT
     .complete(complete),
     .stateFFT(stateFFT),
     .flag_wayt_data(flag_wayt_data),
-    .flag_ready_recive(flag_ready_read),
-    ._counterMultData(_counterMultData),
-//    ._counterOutData(_counterOutData)
-    ._out_summ_0__NFFT_2_i(_out_summ_0__NFFT_2_i),
-    ._out_summ_0__NFFT_2_q(_out_summ_0__NFFT_2_q),
-    ._out_summ_NFFT_2__NFFT_i(_out_summ_NFFT_2__NFFT_i),
-    ._out_summ_NFFT_2__NFFT_q(_out_summ_NFFT_2__NFFT_q),
-//    ._counterMultData(_counterMultData)
-    ._flag_complete_chet(_flag_complete_chet),
-    ._flag_complete_Nchet(_flag_complete_Nchet),
-    ._resiveFromChet(_resiveFromChet),
-    ._resiveFromNChet(_resiveFromNChet),
+    .flag_ready_recive(flag_ready_read)
+//    ._counterMultData(_counterMultData),
+////    ._counterOutData(_counterOutData)
+//    ._out_summ_0__NFFT_2_i(_out_summ_0__NFFT_2_i),
+//    ._out_summ_0__NFFT_2_q(_out_summ_0__NFFT_2_q),
+//    ._out_summ_NFFT_2__NFFT_i(_out_summ_NFFT_2__NFFT_i),
+//    ._out_summ_NFFT_2__NFFT_q(_out_summ_NFFT_2__NFFT_q),
+////    ._counterMultData(_counterMultData)
+//    ._flag_complete_chet(_flag_complete_chet),
+//    ._flag_complete_Nchet(_flag_complete_Nchet),
+//    ._resiveFromChet(_resiveFromChet),
+//    ._resiveFromNChet(_resiveFromNChet),
 //    ._flag_valid_chet(_flag_valid_chet),
 //    ._flag_valid_Nchet(_flag_valid_Nchet),
-    .stateFFT_chet(stateFFT_chet),
-    .stateFFT_Nchet(stateFFT_Nchet)
+//    .stateFFT_chet(stateFFT_chet),
+//    .stateFFT_Nchet(stateFFT_Nchet)
 //    ._counterMultData_chet(_counterMultData_chet),
 //    ._counterMultData_Nchet(_counterMultData_Nchet),
 //    ._enMult(_enMult),

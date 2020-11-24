@@ -144,8 +144,8 @@ module multComplexE #(parameter SIZE_DATA_FI = 2/*LOG2(NFFT)*/,
     //(* ram_style="register" *)
     //(* ram_style="ultra" *)
     //специальные cos sin для FFT
-    /*(* ram_style="distributed" *)*/ reg [16:0] cos [2**(SIZE_DATA_FI)/2-1:0];
-    /*(* ram_style="distributed" *)*/ reg [16:0] sin [2**(SIZE_DATA_FI)/2-1:0];
+    /*(* ram_style="block" *)*/reg [16:0] cos [2**(SIZE_DATA_FI)/2-1:0];
+    /*(* ram_style="block" *)*/reg [16:0] sin [2**(SIZE_DATA_FI)/2-1:0];
     
 //    assign out_data_minus_i = outData_i[DATA_FFT_SIZE-1 + (COMPENS_FP=="add"?1:0) :0];
 //    assign out_data_minus_q = outData_q[DATA_FFT_SIZE-1 + (COMPENS_FP=="add"?1:0) :0];
@@ -170,13 +170,6 @@ module multComplexE #(parameter SIZE_DATA_FI = 2/*LOG2(NFFT)*/,
         
         if(timer_4clock == 3)   outValid <= 1'b1;
         else if(en)             outValid <= 1'b0;
-               
-        
-//        if(en)   begin               _module_en <= 1'b1;  end
-//        else if(mult)begin           _module_en <= 1'b0;  end
-//        else begin multDone <=  1'b0; end
-        
-
         
         if(en)
         begin
@@ -223,102 +216,6 @@ module multComplexE #(parameter SIZE_DATA_FI = 2/*LOG2(NFFT)*/,
         begin
             $readmemh("cos64.mem",cos);
             $readmemh("sin64.mem",sin);
-            
-//            cos[0] =  17'd32768;
-//            sin[0] =  17'd0;
-            
-//            cos[1] =  17'd32610;
-//            sin[1] = -17'd3212;
-            
-//            cos[2] =  17'd32138;
-//            sin[2] = -17'd6393;
-            
-//            cos[3] =  17'd31357;
-//            sin[3] = -17'd9512;
-            
-//            cos[4] =  17'd30274;
-//            sin[4] = -17'd12539;
-            
-//            cos[5] =  17'd29900;
-//            sin[5] = -17'd15447;
-            
-//            cos[6] =  17'd27246;
-//            sin[6] = -17'd18204;
-            
-//            cos[7] =  17'd25330;
-//            sin[7] = -17'd20787;
-            
-//            cos[8] =  17'd23170;
-//            sin[8] = -17'd23170;
-            
-//            cos[9] =  17'd20787;
-//            sin[9] = -17'd25330;
-            
-//            cos[10] = 17'd18205;
-//            sin[10] = -17'd27248;
-            
-//            cos[11] = 17'd15447;
-//            sin[11] = -17'd29900;
-            
-//            cos[12] =  17'd12540;
-//            sin[12] = -17'd30274;
-            
-//            cos[13] = 17'd9512;
-//            sin[13] = -17'd31357;
-            
-//            cos[14] =  17'd6393;
-//            sin[14] = -17'd32138;
-            
-//            cos[15] =  17'd3212;
-//            sin[15] = -17'd32610;
-            
-//            cos[16] =  17'd0;
-//            sin[16] = -17'd32768;
-            
-//            cos[17] = -17'd3212;
-//            sin[17] = -17'd32610;
-            
-//            cos[18] = -17'd6393;
-//            sin[18] = -17'd32138;
-            
-//            cos[19] = -17'd9512;
-//            sin[19] = -17'd31357;
-            
-//            cos[20] = -17'd12540;
-//            sin[20] = -17'd30274;
-            
-//            cos[21] = -17'd15447;
-//            sin[21] = -17'd29900;
-            
-//            cos[22] = -17'd18205;
-//            sin[22] = -17'd27248;
-            
-//            cos[23] = -17'd20787;
-//            sin[23] = -17'd25330;
-            
-//            cos[24] = -17'd23170;
-//            sin[24] = -17'd23170;
-            
-//            cos[25] = -17'd25330;
-//            sin[25] = -17'd20787;
-            
-//            cos[26] = -17'd27246;
-//            sin[26] = -17'd18204;
-            
-//            cos[27] = -17'd29900;
-//            sin[27] = -17'd15447;
-            
-//            cos[28] = -17'd30274;
-//            sin[28] = -17'd12539;
-            
-//            cos[29] = -17'd31357;
-//            sin[29] = -17'd9512;
-            
-//            cos[30] = -17'd32138;
-//            sin[30] = -17'd6393;
-            
-//            cos[31] = -17'd32610;
-//            sin[31] = -17'd3212;
         end
         else if(SIZE_DATA_FI == 7)//128dot
         begin
@@ -342,15 +239,6 @@ module multComplexE #(parameter SIZE_DATA_FI = 2/*LOG2(NFFT)*/,
     else if(SIZE_DATA_FI == 2)//если 4 точки в этом случае все просто
     begin
         reg multDone = 1'b0;
-//        reg delay1 = 1'b0;
-//        always @(posedge clk)
-//        begin
-//            if(en & outValid)       begin outValid <= 1'b0; module_en <= 1'b1;  end /*1*/
-//            else if(multDone)       begin outValid <= 1'b1; module_en <= 1'b0;  end /*3*/
-////            else if(multDone)       begin delay1 <= 1'b1; module_en <= 1'b0;  end /*3*/      
-////            else if(delay1)         begin outValid <= 1'b1; delay1 <= 1'b0;  end /*3*/
-//            else                    begin module_en <= 1'b0; end /*2*/
-//        end
         
         reg [DATA_FFT_SIZE-1:0] data_i;
         reg [DATA_FFT_SIZE-1:0] data_q;
