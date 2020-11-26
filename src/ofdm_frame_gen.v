@@ -59,10 +59,12 @@ module ofdm_frame_gen(
     );
     
     myFFT
-    #(.SIZE_BUFFER(6),/*log2(NFFT)*/
+    #(.SIZE_BUFFER(8),/*log2(NFFT)*/
       .DATA_FFT_SIZE(16),
       .FAST("slow"),/*slow fast ultrafast slow mult x1 fast mult x2 ultrafast mult x4*/
-      .TYPE("invers")/*forvard  invers*/
+      .TYPE("invers"),/*forvard  invers*/
+      .COMPENS_FP("add"),/*false true or add razrad*/
+      .MIN_FFT_x4(1)
     )
     _fft_OFDM(
     .clk(),

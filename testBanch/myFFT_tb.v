@@ -235,7 +235,7 @@ wire [SIZE_BUFFER:0] _counterMultData;
 //wire _dataComplete;
 
 myFFT
-#(.SIZE_BUFFER(SIZE_BUFFER), .DATA_FFT_SIZE(SIZE_DATA), .TYPE("forvard")/*forvard invers*/, .FAST("ultrafast")/*slow fast ultrafast*/, 
+#(.SIZE_BUFFER(SIZE_BUFFER), .DATA_FFT_SIZE(SIZE_DATA), .TYPE("invers")/*forvard invers*/, .FAST("ultrafast")/*slow fast ultrafast*/, 
   .COMPENS_FP(COMPENS_PF)/*false true or add razrad*/, .MIN_FFT_x4(1))
 _myFFT
 (

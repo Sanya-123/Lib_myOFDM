@@ -231,6 +231,10 @@ module myFFT
             end
         end
         
+        //TYPE = "forvard",/*forvard invers*/
+        localparam numm_1 = TYPE=="forvard" ? 1 : TYPE=="invers" ? 3 : 1;
+        localparam numm_3 = TYPE=="forvard" ? 3 : TYPE=="invers" ? 1 : 3;
+        
         always @(posedge clk_i_data)//resiveData
         begin : reciveDataFFT
             if(reset)   counterReciveDataFFT <= 0;
@@ -247,56 +251,56 @@ module myFFT
                             data_out_mas_i[0] = data_in_i;
                             data_out_mas_q[0] = data_in_q;
                             
-                            data_out_mas_i[1] = data_in_i;
-                            data_out_mas_q[1] = data_in_q;
+                            data_out_mas_i[numm_1] = data_in_i;
+                            data_out_mas_q[numm_1] = data_in_q;
                             
                             data_out_mas_i[2] = data_in_i;
                             data_out_mas_q[2] = data_in_q;
                             
-                            data_out_mas_i[3] = data_in_i;
-                            data_out_mas_q[3] = data_in_q;
+                            data_out_mas_i[numm_3] = data_in_i;
+                            data_out_mas_q[numm_3] = data_in_q;
                         end
                         1:
                         begin
                             data_out_mas_i[0] = data_out_mas_i[0] + data_in_i;
                             data_out_mas_q[0] = data_out_mas_q[0] + data_in_q;
                             
-                            data_out_mas_i[1] = data_out_mas_i[1] + data_in_q;
-                            data_out_mas_q[1] = data_out_mas_q[1] - data_in_i;
+                            data_out_mas_i[numm_1] = data_out_mas_i[numm_1] + data_in_q;
+                            data_out_mas_q[numm_1] = data_out_mas_q[numm_1] - data_in_i;
                             
                             data_out_mas_i[2] = data_out_mas_i[2] - data_in_i;
                             data_out_mas_q[2] = data_out_mas_q[2] - data_in_q;
                             
-                            data_out_mas_i[3] = data_out_mas_i[3] - data_in_q;
-                            data_out_mas_q[3] = data_out_mas_q[3] + data_in_i;
+                            data_out_mas_i[numm_3] = data_out_mas_i[numm_3] - data_in_q;
+                            data_out_mas_q[numm_3] = data_out_mas_q[numm_3] + data_in_i;
                         end
                         2:
                         begin
                             data_out_mas_i[0] = data_out_mas_i[0] + data_in_i;
                             data_out_mas_q[0] = data_out_mas_q[0] + data_in_q;
                             
-                            data_out_mas_i[1] = data_out_mas_i[1] - data_in_i;
-                            data_out_mas_q[1] = data_out_mas_q[1] - data_in_q;
+                            data_out_mas_i[numm_1] = data_out_mas_i[numm_1] - data_in_i;
+                            data_out_mas_q[numm_1] = data_out_mas_q[numm_1] - data_in_q;
                             
                             data_out_mas_i[2] = data_out_mas_i[2] + data_in_i;
                             data_out_mas_q[2] = data_out_mas_q[2] + data_in_q;
                             
-                            data_out_mas_i[3] = data_out_mas_i[3] - data_in_i;
-                            data_out_mas_q[3] = data_out_mas_q[3] - data_in_q;
+                            data_out_mas_i[numm_3] = data_out_mas_i[numm_3] - data_in_i;
+                            data_out_mas_q[numm_3] = data_out_mas_q[numm_3] - data_in_q;
                         end
                         3:
                         begin
                             data_out_mas_i[0] = data_out_mas_i[0] + data_in_i;
                             data_out_mas_q[0] = data_out_mas_q[0] + data_in_q;
                             
-                            data_out_mas_i[1] = data_out_mas_i[1] - data_in_q;
-                            data_out_mas_q[1] = data_out_mas_q[1] + data_in_i;
+                            data_out_mas_i[numm_1] = data_out_mas_i[numm_1] - data_in_q;
+                            data_out_mas_q[numm_1] = data_out_mas_q[numm_1] + data_in_i;
                             
                             data_out_mas_i[2] = data_out_mas_i[2] - data_in_i;
                             data_out_mas_q[2] = data_out_mas_q[2] - data_in_q;
                             
-                            data_out_mas_i[3] = data_out_mas_i[3] + data_in_q;
-                            data_out_mas_q[3] = data_out_mas_q[3] - data_in_i;
+                            data_out_mas_i[numm_3] = data_out_mas_i[numm_3] + data_in_q;
+                            data_out_mas_q[numm_3] = data_out_mas_q[numm_3] - data_in_i;
                         end
                         
                         endcase

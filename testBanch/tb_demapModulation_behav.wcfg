@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="tb_demapModulation_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="tb_demapModulation" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0fs"></ZoomStartTime>
+      <ZoomEndTime time="457000001fs"></ZoomEndTime>
+      <Cursor1Time time="2000000000fs"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="254"></NameColumnWidth>
+      <ValueColumnWidth column_width="114"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="17" />
+   <wvobject type="logic" fp_name="/tb_demapModulation/clk">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider319" type="divider">
+      <obj_property name="label">data0</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject type="group" fp_name="group318">
+      <obj_property name="label">data_0</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject type="array" fp_name="/tb_demapModulation/dataRequeRx">
+         <obj_property name="ElementShortName">dataRequeRx[7:0]</obj_property>
+         <obj_property name="ObjectShortName">dataRequeRx[7:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/tb_demapModulation/data_demod_BPSK">
+         <obj_property name="ElementShortName">data_demod_BPSK[7:0]</obj_property>
+         <obj_property name="ObjectShortName">data_demod_BPSK[7:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/tb_demapModulation/data_demod_QPSK">
+         <obj_property name="ElementShortName">data_demod_QPSK[7:0]</obj_property>
+         <obj_property name="ObjectShortName">data_demod_QPSK[7:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/tb_demapModulation/data_demod_QAM16">
+         <obj_property name="ElementShortName">data_demod_QAM16[7:0]</obj_property>
+         <obj_property name="ObjectShortName">data_demod_QAM16[7:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/tb_demapModulation/data_demod_QAM64">
+         <obj_property name="ElementShortName">data_demod_QAM64[7:0]</obj_property>
+         <obj_property name="ObjectShortName">data_demod_QAM64[7:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/tb_demapModulation/data_demod_QAM256">
+         <obj_property name="ElementShortName">data_demod_QAM256[7:0]</obj_property>
+         <obj_property name="ObjectShortName">data_demod_QAM256[7:0]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="divider321" type="divider">
+      <obj_property name="label">data_1</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject type="group" fp_name="group322">
+      <obj_property name="label">data_1</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject type="array" fp_name="/tb_demapModulation/dataRequeRx2">
+         <obj_property name="ElementShortName">dataRequeRx2[7:0]</obj_property>
+         <obj_property name="ObjectShortName">dataRequeRx2[7:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/tb_demapModulation/data_demod_QPSK_2">
+         <obj_property name="ElementShortName">data_demod_QPSK_2[7:0]</obj_property>
+         <obj_property name="ObjectShortName">data_demod_QPSK_2[7:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/tb_demapModulation/data_demod_QAM16_2">
+         <obj_property name="ElementShortName">data_demod_QAM16_2[7:0]</obj_property>
+         <obj_property name="ObjectShortName">data_demod_QAM16_2[7:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/tb_demapModulation/data_demod_QAM64_2">
+         <obj_property name="ElementShortName">data_demod_QAM64_2[7:0]</obj_property>
+         <obj_property name="ObjectShortName">data_demod_QAM64_2[7:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/tb_demapModulation/data_demod_QAM256_2">
+         <obj_property name="ElementShortName">data_demod_QAM256_2[7:0]</obj_property>
+         <obj_property name="ObjectShortName">data_demod_QAM256_2[7:0]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="divider323" type="divider">
+      <obj_property name="label">data_2</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject type="group" fp_name="group324">
+      <obj_property name="label">data_2</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject type="array" fp_name="/tb_demapModulation/dataRequeRx3">
+         <obj_property name="ElementShortName">dataRequeRx3[7:0]</obj_property>
+         <obj_property name="ObjectShortName">dataRequeRx3[7:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/tb_demapModulation/data_demod_QAM16_3">
+         <obj_property name="ElementShortName">data_demod_QAM16_3[7:0]</obj_property>
+         <obj_property name="ObjectShortName">data_demod_QAM16_3[7:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/tb_demapModulation/data_demod_QAM64_3">
+         <obj_property name="ElementShortName">data_demod_QAM64_3[7:0]</obj_property>
+         <obj_property name="ObjectShortName">data_demod_QAM64_3[7:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/tb_demapModulation/data_demod_QAM256_3">
+         <obj_property name="ElementShortName">data_demod_QAM256_3[7:0]</obj_property>
+         <obj_property name="ObjectShortName">data_demod_QAM256_3[7:0]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="divider325" type="divider">
+      <obj_property name="label">data_3</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject type="group" fp_name="group326">
+      <obj_property name="label">data_3</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject type="array" fp_name="/tb_demapModulation/dataRequeRx4">
+         <obj_property name="ElementShortName">dataRequeRx4[7:0]</obj_property>
+         <obj_property name="ObjectShortName">dataRequeRx4[7:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/tb_demapModulation/data_demod_QAM16_4">
+         <obj_property name="ElementShortName">data_demod_QAM16_4[7:0]</obj_property>
+         <obj_property name="ObjectShortName">data_demod_QAM16_4[7:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/tb_demapModulation/data_demod_QAM64_4">
+         <obj_property name="ElementShortName">data_demod_QAM64_4[7:0]</obj_property>
+         <obj_property name="ObjectShortName">data_demod_QAM64_4[7:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/tb_demapModulation/data_demod_QAM256_4">
+         <obj_property name="ElementShortName">data_demod_QAM256_4[7:0]</obj_property>
+         <obj_property name="ObjectShortName">data_demod_QAM256_4[7:0]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="divider327" type="divider">
+      <obj_property name="label">data_4</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject type="group" fp_name="group334">
+      <obj_property name="label">data_4</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject type="array" fp_name="/tb_demapModulation/dataRequeRx5">
+         <obj_property name="ElementShortName">dataRequeRx5[7:0]</obj_property>
+         <obj_property name="ObjectShortName">dataRequeRx5[7:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/tb_demapModulation/data_demod_QAM64_5">
+         <obj_property name="ElementShortName">data_demod_QAM64_5[7:0]</obj_property>
+         <obj_property name="ObjectShortName">data_demod_QAM64_5[7:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/tb_demapModulation/data_demod_QAM256_5">
+         <obj_property name="ElementShortName">data_demod_QAM256_5[7:0]</obj_property>
+         <obj_property name="ObjectShortName">data_demod_QAM256_5[7:0]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="divider328" type="divider">
+      <obj_property name="label">data_5</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject type="group" fp_name="group333">
+      <obj_property name="label">data_5</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject type="array" fp_name="/tb_demapModulation/dataRequeRx6">
+         <obj_property name="ElementShortName">dataRequeRx6[7:0]</obj_property>
+         <obj_property name="ObjectShortName">dataRequeRx6[7:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/tb_demapModulation/data_demod_QAM64_6">
+         <obj_property name="ElementShortName">data_demod_QAM64_6[7:0]</obj_property>
+         <obj_property name="ObjectShortName">data_demod_QAM64_6[7:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/tb_demapModulation/data_demod_QAM256_6">
+         <obj_property name="ElementShortName">data_demod_QAM256_6[7:0]</obj_property>
+         <obj_property name="ObjectShortName">data_demod_QAM256_6[7:0]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="divider329" type="divider">
+      <obj_property name="label">data_6</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject type="group" fp_name="group332">
+      <obj_property name="label">data_6</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject type="array" fp_name="/tb_demapModulation/dataRequeRx7">
+         <obj_property name="ElementShortName">dataRequeRx7[7:0]</obj_property>
+         <obj_property name="ObjectShortName">dataRequeRx7[7:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/tb_demapModulation/data_demod_QAM256_7">
+         <obj_property name="ElementShortName">data_demod_QAM256_7[7:0]</obj_property>
+         <obj_property name="ObjectShortName">data_demod_QAM256_7[7:0]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="divider330" type="divider">
+      <obj_property name="label">data_7</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject type="group" fp_name="group331">
+      <obj_property name="label">data_7</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject type="array" fp_name="/tb_demapModulation/dataRequeRx8">
+         <obj_property name="ElementShortName">dataRequeRx8[7:0]</obj_property>
+         <obj_property name="ObjectShortName">dataRequeRx8[7:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/tb_demapModulation/data_demod_QAM256_8">
+         <obj_property name="ElementShortName">data_demod_QAM256_8[7:0]</obj_property>
+         <obj_property name="ObjectShortName">data_demod_QAM256_8[7:0]</obj_property>
+      </wvobject>
+   </wvobject>
+</wave_config>

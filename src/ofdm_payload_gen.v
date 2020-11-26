@@ -16,11 +16,12 @@
 // Revision:
 // Revision 0.01 - File Created
 // Additional Comments:
-// module for generate 1 symbol
+// module for generate 1 symbol OFDM
 //////////////////////////////////////////////////////////////////////////////////
 
+`include "commonOFDM.vh"
 
-module ofdm_payload_gen #(parameter DATA_SIZE = 16/*, parameter NFFT = 64 TODO*/)(
+module ofdm_payload_gen #(parameter DATA_SIZE = 16)(
     clk,
     reset,
     in_data_en,
@@ -29,7 +30,8 @@ module ofdm_payload_gen #(parameter DATA_SIZE = 16/*, parameter NFFT = 64 TODO*/
     out_done,
     out_data_i,
     out_data_q,
-    counter_data
+    counter_data,
+    wayt_recive_data
     );
     
     input clk;
@@ -41,28 +43,102 @@ module ofdm_payload_gen #(parameter DATA_SIZE = 16/*, parameter NFFT = 64 TODO*/
     output reg [DATA_SIZE-1:0] out_data_i;
     output reg [DATA_SIZE-1:0] out_data_q;
     
-    output reg [7:0] counter_data = 8'b0;
+    output reg [15:0] counter_data = 0;
+    input wayt_recive_data;//flag от том что можно отправлять
     
-    reg [7:0] counter_data_mod = 8'b0;
-    reg [7:0] counter_cobyBytes = 8'b0;//reg for modulation symbols
+    localparam N_DATA = 200;
     
-    reg [DATA_SIZE-1:0] symbol_i [48-1:0];//
-    reg [DATA_SIZE-1:0] symbol_q [48-1:0];//
-    //0-5 -> 0
-    //6-10 -> DATA********
-    //11 -> pilot 1
-    //12-24 -> DATA********
-    //25 -> pilot 1
-    //26-31 -> DATA********
-    //32 -> 0
-    //33-38 -> DATA********
-    //39 -> pilot -1
-    //40-52 -> DATA********
-    //53 -> pilot 1
-    //54-58 -> DATA********
-    //59-63 -> 0
+    reg [15:0] counter_data_mod = 0;
+    reg [15:0] counter_cobyBytes = 0;//reg for modulation symbols
     
-    //48 data symbols
+    reg [DATA_SIZE-1:0] symbol_i [N_DATA-1:0];//
+    reg [DATA_SIZE-1:0] symbol_q [N_DATA-1:0];//
+    
+    //example symbols in wi-fi 802.11a
+//    // mask[0] is DC, mask[1:26] -> 1,..., 26
+//// mask[38:63] -> -26,..., -1
+//localparam SUBCARRIER_MASK =
+//    64'b1111111111111111111111111100000000000111111111111111111111111110;
+
+//localparam HT_SUBCARRIER_MASK =
+//    64'b1111111111111111111111111111000000011111111111111111111111111110;
+
+//// -7, -21, 21, 7
+//localparam PILOT_MASK =
+//    64'b0000001000000000000010000000000000000000001000000000000010000000;
+
+//localparam DATA_SUBCARRIER_MASK =
+//    SUBCARRIER_MASK ^ PILOT_MASK;
+
+//localparam HT_DATA_SUBCARRIER_MASK = 
+//    HT_SUBCARRIER_MASK ^ PILOT_MASK;
+
+//in my OFDM 802.16e 256point
+//N data = 200-8
+//N pilot 8
+//1 DC
+//N left=28
+//N Right=27
+//mask [1:100] -> 1,....,100
+//mask [156:255] ->-100,...,-1
+
+localparam SUBCARRIER_MASK_L =                                                                                                                                
+    128'b11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111110000000000000000000000000000;
+//-1:-100         |10       |20       |30       |40       |50       |60       |70       |80       |90       |100                                                    
+//N right                                                                                                    |1                         |28                         
+//**     |-1                                              |-50                                              |-100                       |-128
+
+localparam SUBCARRIER_MASK_R =
+    128'b00000000000000000000000000011111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111110;    
+//N left |27                       |1 
+//100:1                             |100     |90       |80       |70       |60       |50       |40       |30       |20       |10       |1
+//DC                                                                                                                                    |0 
+//*      |127                      |101      |90                                     |50                                     |10        |0 
+
+localparam SUBCARRIER_MASK = {SUBCARRIER_MASK_L, SUBCARRIER_MASK_R};
+
+
+//pilot -88 -63 -38 -13 13 38 63 88
+
+localparam PILOT_MASK_L =                                                                               
+    128'b00000000000010000000000000000000000001000000000000000000000000100000000000000000000000010000000000000000000000000000000000000000;
+//**     |-1      |-10      |-20      |-30      |-40      |-50      |-60      |-70      |-80      |-90      |-100                       |-128
+    
+    
+localparam PILOT_MASK_R =
+    128'b00000000000000000000000000000000000000100000000000000000000000010000000000000000000000001000000000000000000000000100000000000000; 
+//*      |127                      |101      |90       |80       |70       |60       |50       |40       |30       |20    |13           |0   
+
+localparam PILOT_MASK = {PILOT_MASK_L, PILOT_MASK_R};
+
+//DATA
+localparam DATA_SUBCARRIER_MASK =
+    SUBCARRIER_MASK ^ PILOT_MASK;
+
+
+    //0 -> 0
+    //1-12 -> DATA********
+    //13 -> pilot x             13
+    //14-37 -> DATA********
+    //38 -> pilot x             38
+    //39-62 -> DATA********
+    //63 -> pilot x             63
+    //64-87 -> DATA********
+    //88 -> pilot x             88
+    //89-100 -> DATA********
+    //101-155 -> 0
+    //156-167 -> DATA********
+    //168 -> pilot x            -88
+    //169-192 -> DATA********
+    //193 -> pilot x            -63
+    //169-217 -> DATA********
+    //218 -> pilot x            -38
+    //219-242 -> DATA********
+    //243 -> pilot x            -13
+    //244-255 -> DATA********
+    
+    
+    //N_DATA data symbols
     
     reg [8*8-1:0] dataForModulations; 
     
@@ -75,20 +151,20 @@ module ofdm_payload_gen #(parameter DATA_SIZE = 16/*, parameter NFFT = 64 TODO*/
     
     reg flag_read_on_next_tact = 1'b0;
     
-    wire [15:0] BPSK_wire_i [7:0];
-    wire [15:0] BPSK_wire_q [7:0];
+    wire [DATA_SIZE-1:0] BPSK_wire_i [7:0];
+    wire [DATA_SIZE-1:0] BPSK_wire_q [7:0];
     
-    wire [15:0] QPSK_wire_i [7:0];
-    wire [15:0] QPSK_wire_q [7:0];
+    wire [DATA_SIZE-1:0] QPSK_wire_i [7:0];
+    wire [DATA_SIZE-1:0] QPSK_wire_q [7:0];
     
-    wire [15:0] QAM16_wire_i [7:0];
-    wire [15:0] QAM16_wire_q [7:0];
+    wire [DATA_SIZE-1:0] QAM16_wire_i [7:0];
+    wire [DATA_SIZE-1:0] QAM16_wire_q [7:0];
         
-    wire [15:0] QAM64_wire_i [7:0];
-    wire [15:0] QAM64_wire_q [7:0];
+    wire [DATA_SIZE-1:0] QAM64_wire_i [7:0];
+    wire [DATA_SIZE-1:0] QAM64_wire_q [7:0];
     
-    wire [15:0] QAM256_wire_i [7:0];
-    wire [15:0] QAM256_wire_q [7:0];
+    wire [DATA_SIZE-1:0] QAM256_wire_i [7:0];
+    wire [DATA_SIZE-1:0] QAM256_wire_q [7:0];
     
     always @(posedge clk)
     begin : demultiplex_data
@@ -98,10 +174,11 @@ module ofdm_payload_gen #(parameter DATA_SIZE = 16/*, parameter NFFT = 64 TODO*/
         else
         begin
 //            if(in_data_en)  counter_cobyBytes <= counter_cobyBytes + 1;
+            if(out_done)    begin  flag_read_on_next_tact <= 1'b0; end
             if(out_done)    counter_data_mod <= 0;//обнуляю таймер когда начинаю отправлять жданные чтобы после отправки он сразу по приему начал считыть
             else if(in_data_en)
             begin
-                if(counter_data_mod < 48)
+                if(counter_data_mod < N_DATA)
                 begin
                 case(modulation)
                     modulationBPSK://+
@@ -255,22 +332,22 @@ module ofdm_payload_gen #(parameter DATA_SIZE = 16/*, parameter NFFT = 64 TODO*/
     end
     
     reg flag_read_now = 1'b0;
-    reg [5:0] counter_data_mod_read = 8'b0;
+    reg [15:0] counter_data_mod_read = 0;
     reg flag_dataModComplete = 1'b0;
     
     always @(posedge clk)
     begin : multiplex_data
         //задержка на 1 такт
-        if(reset)   flag_dataModComplete <= 1'b0;
+//        if(reset)   flag_dataModComplete <= 1'b0;
         if(reset)   counter_data_mod_read <= 8'b0;
         else
         begin
             if(flag_read_on_next_tact)  flag_read_now <= 1'b1;
             else                        flag_read_now <= 1'b0;
             
-            if(flag_read_now & (counter_data_mod_read < 48))
+            if(flag_read_now & (counter_data_mod_read < N_DATA))
             begin
-                flag_dataModComplete <= 1'b0;
+//                flag_dataModComplete <= 1'b0;
                 counter_data_mod_read <= counter_data_mod_read + 8;
                 case(modulation)
                     modulationBPSK://+
@@ -370,73 +447,138 @@ module ofdm_payload_gen #(parameter DATA_SIZE = 16/*, parameter NFFT = 64 TODO*/
                     end
                 endcase
             end
-            else if(counter_data_mod_read == 48)
+            else if(counter_data_mod_read == N_DATA)
             begin
-                flag_dataModComplete <= 1'b1;
+//                flag_dataModComplete <= 1'b1;
                 if(out_done) counter_data_mod_read <= 1'b0;
             end
         end
     end
     
-    //0-5 -> 0
-    //6-10 -> DATA********
-    //11 -> pilot 1
-    //12-24 -> DATA********
-    //25 -> pilot 1
-    //26-31 -> DATA********
-    //32 -> 0
-    //33-38 -> DATA********
-    //39 -> pilot -1
-    //40-52 -> DATA********
-    //53 -> pilot 1
-    //54-58 -> DA
-    //59-63 -> 0
-    
     always @(posedge clk)
-    begin : send_data
+    begin : FLAG_DATA_COMPLETE
+        //задержка на 1 такт
+        if(reset)   flag_dataModComplete <= 1'b0;
+        else
+        begin
+             if(counter_data_mod_read == N_DATA)    flag_dataModComplete <= 1'b1;
+             else if(out_done == 1'b0)              flag_dataModComplete <= 1'b0;
+        end
+    end
+    
+    //0 -> 0
+    //1-12 -> DATA********
+    //13 -> pilot x             13
+    //14-37 -> DATA********
+    //38 -> pilot x             38
+    //39-62 -> DATA********
+    //63 -> pilot x             63
+    //64-87 -> DATA********
+    //88 -> pilot x             88
+    //89-100 -> DATA********
+    //101-155 -> 0
+    //156-167 -> DATA********
+    //168 -> pilot x            -88
+    //169-192 -> DATA********
+    //193 -> pilot x            -63
+    //169-217 -> DATA********
+    //218 -> pilot x            -38
+    //219-242 -> DATA********
+    //243 -> pilot x            -13
+    //244-255 -> DATA********
+
+
+    always @(posedge clk)
+    begin : OUTPUT_DONE
         if(flag_dataModComplete)
         begin
-            if(counter_data < 64)
+            if(counter_data < 256)
             begin
                 out_done <= 1'b1;
-                counter_data <= counter_data + 1;
-                if(counter_data < 6)            out_data_i <= 0;
-                else if(counter_data < 11)      out_data_i <= symbol_i[counter_data - 6];
-                else if(counter_data < 12)      out_data_i <= 1024;
-                else if(counter_data < 25)      out_data_i <= symbol_i[counter_data - 7];
-                else if(counter_data < 26)      out_data_i <= 1024;
-                else if(counter_data < 32)      out_data_i <= symbol_i[counter_data - 8];
-                else if(counter_data < 33)      out_data_i <= 0;
-                else if(counter_data < 39)      out_data_i <= symbol_i[counter_data - 9];
-                else if(counter_data < 40)      out_data_i <= -1024;
-                else if(counter_data < 53)      out_data_i <= symbol_i[counter_data - 10];
-                else if(counter_data < 54)      out_data_i <= 1024;
-                else if(counter_data < 59)      out_data_i <= symbol_i[counter_data - 11];
-                else if(counter_data < 63)      out_data_i <= 0;
-                
-                if(counter_data < 6)            out_data_q <= 0;
-                else if(counter_data < 11)      out_data_q <= symbol_q[counter_data - 6];
-                else if(counter_data < 12)      out_data_q <= /*1024*/0;
-                else if(counter_data < 25)      out_data_q <= symbol_q[counter_data - 7];
-                else if(counter_data < 26)      out_data_q <= /*1024*/0;
-                else if(counter_data < 32)      out_data_q <= symbol_q[counter_data - 8];
-                else if(counter_data < 33)      out_data_q <= 0;
-                else if(counter_data < 39)      out_data_q <= symbol_q[counter_data - 9];
-                else if(counter_data < 40)      out_data_q <= /*-1024*/0;
-                else if(counter_data < 53)      out_data_q <= symbol_q[counter_data - 10];
-                else if(counter_data < 54)      out_data_q <= /*1024*/0;
-                else if(counter_data < 59)      out_data_q <= symbol_q[counter_data - 11];
-                else if(counter_data < 63)      out_data_q <= 0;
             end
             else
             begin
                 out_done <= 1'b0; 
             end
         end
-        else  begin  counter_data <= 1'b0; out_done <= 1'b0; end
+    end
+    
+    always @(posedge clk)
+    begin : send_data
+        if(flag_dataModComplete & wayt_recive_data)//TODO
+        begin
+            if(counter_data < 256)
+            begin
+//                out_done <= 1'b1;
+                counter_data <= counter_data + 1;
+                if(counter_data == 0)           out_data_i <= 0;
+                else if(counter_data < 13)      out_data_i <= symbol_i[counter_data - 1];
+                else if(counter_data < 14)      out_data_i <= `PILOT_P13_I;
+                else if(counter_data < 38)      out_data_i <= symbol_i[counter_data - 2];
+                else if(counter_data < 39)      out_data_i <= `PILOT_P38_I;
+                else if(counter_data < 63)      out_data_i <= symbol_i[counter_data - 3];
+                else if(counter_data < 64)      out_data_i <= `PILOT_P63_I;
+                else if(counter_data < 88)      out_data_i <= symbol_i[counter_data - 4];
+                else if(counter_data < 89)      out_data_i <= `PILOT_P88_I;
+                else if(counter_data < 101)     out_data_i <= symbol_i[counter_data - 5];
+                else if(counter_data < 156)     out_data_i <= 0;
+                else if(counter_data < 168)     out_data_i <= symbol_i[counter_data - 60];
+                else if(counter_data < 169)     out_data_i <= `PILOT_P_88_I;
+                else if(counter_data < 193)     out_data_i <= symbol_i[counter_data - 61];
+                else if(counter_data < 194)     out_data_i <= `PILOT_P_63_I;
+                else if(counter_data < 218)     out_data_i <= symbol_i[counter_data - 62];
+                else if(counter_data < 219)     out_data_i <= `PILOT_P_38_I;
+                else if(counter_data < 243)     out_data_i <= symbol_i[counter_data - 63];
+                else if(counter_data < 244)     out_data_i <= `PILOT_P_13_I;
+                else if(counter_data < 256)     out_data_i <= symbol_i[counter_data - 64];
+                
+                
+//                else if(counter_data < 11)      out_data_i <= symbol_i[counter_data - 2];
+//                else if(counter_data < 12)      out_data_i <= 1024;
+//                else if(counter_data < 25)      out_data_i <= symbol_i[counter_data - 7];
+//                else if(counter_data < 26)      out_data_i <= 1024;
+//                else if(counter_data < 32)      out_data_i <= symbol_i[counter_data - 8];
+//                else if(counter_data < 33)      out_data_i <= 0;
+//                else if(counter_data < 39)      out_data_i <= symbol_i[counter_data - 9];
+//                else if(counter_data < 40)      out_data_i <= -1024;
+//                else if(counter_data < 53)      out_data_i <= symbol_i[counter_data - 10];
+//                else if(counter_data < 54)      out_data_i <= 1024;
+//                else if(counter_data < 59)      out_data_i <= symbol_i[counter_data - 11];
+//                else if(counter_data < 63)      out_data_i <= 0;
+                
+                
+                
+                
+                if(counter_data == 0)           out_data_q <= 0;
+                else if(counter_data < 13)      out_data_q <= symbol_q[counter_data - 1];
+                else if(counter_data < 14)      out_data_q <= `PILOT_P13_Q;
+                else if(counter_data < 38)      out_data_q <= symbol_q[counter_data - 2];
+                else if(counter_data < 39)      out_data_q <= `PILOT_P38_Q;
+                else if(counter_data < 63)      out_data_q <= symbol_q[counter_data - 3];
+                else if(counter_data < 64)      out_data_q <= `PILOT_P63_Q;
+                else if(counter_data < 88)      out_data_q <= symbol_q[counter_data - 4];
+                else if(counter_data < 89)      out_data_q <= `PILOT_P88_Q;
+                else if(counter_data < 101)     out_data_q <= symbol_q[counter_data - 5];
+                else if(counter_data < 156)     out_data_q <= 0;
+                else if(counter_data < 168)     out_data_q <= symbol_q[counter_data - 60];
+                else if(counter_data < 169)     out_data_q <= `PILOT_P_88_Q;
+                else if(counter_data < 193)     out_data_q <= symbol_q[counter_data - 61];
+                else if(counter_data < 194)     out_data_q <= `PILOT_P_63_Q;
+                else if(counter_data < 218)     out_data_q <= symbol_q[counter_data - 62];
+                else if(counter_data < 219)     out_data_q <= `PILOT_P_38_Q;
+                else if(counter_data < 243)     out_data_q <= symbol_q[counter_data - 63];
+                else if(counter_data < 244)     out_data_q <= `PILOT_P_13_Q;
+                else if(counter_data < 256)     out_data_q <= symbol_q[counter_data - 64];
+            end
+            else
+            begin
+//                out_done <= 1'b0; 
+            end
+        end
+        else  if(out_done == 1'b0)  begin  counter_data <= 1'b0; /*out_done <= 1'b0; */end
     end
         
-    mapModulations #(.DATA_SIZE(16),.MODULATION("BPSK") /*BPSK QPSK QAM16 QAM64 QAM256*/)
+    mapModulations #(.DATA_SIZE(DATA_SIZE),.MODULATION("BPSK") /*BPSK QPSK QAM16 QAM64 QAM256*/)
     BPSK_modulation(
         .clk(clk),
         .en(1'b1),
@@ -459,7 +601,7 @@ module ofdm_payload_gen #(parameter DATA_SIZE = 16/*, parameter NFFT = 64 TODO*/
         .out_data7_q(BPSK_wire_q[7])
     );
         
-    mapModulations #(.DATA_SIZE(16),.MODULATION("QPSK") /*BPSK QPSK QAM16 QAM64 QAM256*/)
+    mapModulations #(.DATA_SIZE(DATA_SIZE),.MODULATION("QPSK") /*BPSK QPSK QAM16 QAM64 QAM256*/)
     QPSK_modulation(
         .clk(clk),
         .en(1'b1),
@@ -482,7 +624,7 @@ module ofdm_payload_gen #(parameter DATA_SIZE = 16/*, parameter NFFT = 64 TODO*/
         .out_data7_q(QPSK_wire_q[7])
     );
         
-    mapModulations #(.DATA_SIZE(16),.MODULATION("QAM16") /*BPSK QPSK QAM16 QAM64 QAM256*/)
+    mapModulations #(.DATA_SIZE(DATA_SIZE),.MODULATION("QAM16") /*BPSK QPSK QAM16 QAM64 QAM256*/)
     QAM16_modulation(
         .clk(clk),
         .en(1'b1),
@@ -505,7 +647,7 @@ module ofdm_payload_gen #(parameter DATA_SIZE = 16/*, parameter NFFT = 64 TODO*/
         .out_data7_q(QAM16_wire_q[7])
     );
         
-    mapModulations #(.DATA_SIZE(16),.MODULATION("QAM64") /*BPSK QPSK QAM16 QAM64 QAM256*/)
+    mapModulations #(.DATA_SIZE(DATA_SIZE),.MODULATION("QAM64") /*BPSK QPSK QAM16 QAM64 QAM256*/)
     QAM64_modulation(
         .clk(clk),
         .en(1'b1),
@@ -528,7 +670,7 @@ module ofdm_payload_gen #(parameter DATA_SIZE = 16/*, parameter NFFT = 64 TODO*/
         .out_data7_q(QAM64_wire_q[7])
     );
         
-    mapModulations #(.DATA_SIZE(16),.MODULATION("QAM256") /*BPSK QPSK QAM16 QAM64 QAM256*/)
+    mapModulations #(.DATA_SIZE(DATA_SIZE),.MODULATION("QAM256") /*BPSK QPSK QAM16 QAM64 QAM256*/)
     QAM256_modulation(
         .clk(clk),
         .en(1'b1),
