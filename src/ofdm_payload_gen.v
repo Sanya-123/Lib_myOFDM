@@ -16,7 +16,9 @@
 // Revision:
 // Revision 0.01 - File Created
 // Additional Comments:
-// module for generate 1 symbol OFDM
+// module for generate 1 symbol OFDM for ifft data 
+// main function map spector from data
+// in data -> data_i+i*data_q -> spector
 //////////////////////////////////////////////////////////////////////////////////
 
 `include "commonOFDM.vh"
@@ -46,7 +48,8 @@ module ofdm_payload_gen #(parameter DATA_SIZE = 16)(
     output reg [15:0] counter_data = 0;
     input wayt_recive_data;//flag от том что можно отправлять
     
-    localparam N_DATA = 200;
+    localparam N_DATA = 192;//количество гармоник с информццией
+    localparam N_DATA_BYTS_MAX = 192;//максимальное число информации на 1 символ при максимаольной модуляции
     
     reg [15:0] counter_data_mod = 0;
     reg [15:0] counter_cobyBytes = 0;//reg for modulation symbols
@@ -106,8 +109,8 @@ localparam PILOT_MASK_L =
     
     
 localparam PILOT_MASK_R =
-    128'b00000000000000000000000000000000000000100000000000000000000000010000000000000000000000001000000000000000000000000100000000000000; 
-//*      |127                      |101      |90       |80       |70       |60       |50       |40       |30       |20    |13           |0   
+    128'b00000000000000000000000000000000000000010000000000000000000000001000000000000000000000000100000000000000000000000010000000000000; 
+//*      |127                       |101      |90       |80       |70       |60       |50       |40       |30       |20    |13          |0   
 
 localparam PILOT_MASK = {PILOT_MASK_L, PILOT_MASK_R};
 
@@ -167,7 +170,7 @@ localparam DATA_SUBCARRIER_MASK =
     wire [DATA_SIZE-1:0] QAM256_wire_q [7:0];
     
     always @(posedge clk)
-    begin : demultiplex_data
+    begin : DEMULTIPLEX_DATA
         if(reset)   counter_data_mod <= 8'b0;
         if(reset)   counter_data <= 8'b0;
         if(reset)   counter_cobyBytes <= 8'b0;
@@ -336,10 +339,10 @@ localparam DATA_SUBCARRIER_MASK =
     reg flag_dataModComplete = 1'b0;
     
     always @(posedge clk)
-    begin : multiplex_data
+    begin : MULTIPLEX_DATA
         //задержка на 1 такт
 //        if(reset)   flag_dataModComplete <= 1'b0;
-        if(reset)   counter_data_mod_read <= 8'b0;
+        if(reset)   counter_data_mod_read <= 0;
         else
         begin
             if(flag_read_on_next_tact)  flag_read_now <= 1'b1;
@@ -426,7 +429,7 @@ localparam DATA_SUBCARRIER_MASK =
                         symbol_q[counter_data_mod_read + 6] <= QAM64_wire_q[6];
                         symbol_q[counter_data_mod_read + 7] <= QAM64_wire_q[7];
                     end
-                    modulationQAM256:
+                    modulationQAM256://+
                     begin
                         symbol_i[counter_data_mod_read + 0] <= QAM256_wire_i[0];
                         symbol_i[counter_data_mod_read + 1] <= QAM256_wire_i[1];
@@ -504,7 +507,7 @@ localparam DATA_SUBCARRIER_MASK =
     end
     
     always @(posedge clk)
-    begin : send_data
+    begin : SEND_DATA
         if(flag_dataModComplete & wayt_recive_data)//TODO
         begin
             if(counter_data < 256)
@@ -578,6 +581,8 @@ localparam DATA_SUBCARRIER_MASK =
         else  if(out_done == 1'b0)  begin  counter_data <= 1'b0; /*out_done <= 1'b0; */end
     end
         
+        
+    //********************modulations********************
     mapModulations #(.DATA_SIZE(DATA_SIZE),.MODULATION("BPSK") /*BPSK QPSK QAM16 QAM64 QAM256*/)
     BPSK_modulation(
         .clk(clk),

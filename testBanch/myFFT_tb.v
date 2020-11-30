@@ -22,7 +22,7 @@
 
 module myFFT_tb();
 
-parameter SIZE_BUFFER = 8;
+parameter SIZE_BUFFER = 5;
 parameter NFFT = 2**SIZE_BUFFER;
 
 parameter SIZE_DATA  =  16;
@@ -117,7 +117,7 @@ end
             #10;
         end
         vakidData = 1'b0;
-        #6490;
+        #6480;
         
 //        #1740;
         
@@ -235,7 +235,7 @@ wire [SIZE_BUFFER:0] _counterMultData;
 //wire _dataComplete;
 
 myFFT
-#(.SIZE_BUFFER(SIZE_BUFFER), .DATA_FFT_SIZE(SIZE_DATA), .TYPE("invers")/*forvard invers*/, .FAST("ultrafast")/*slow fast ultrafast*/, 
+#(.SIZE_BUFFER(SIZE_BUFFER), .DATA_FFT_SIZE(SIZE_DATA), .TYPE("forvard")/*forvard invers*/, .FAST("ultrafast")/*slow fast ultrafast*/, 
   .COMPENS_FP(COMPENS_PF)/*false true or add razrad*/, .MIN_FFT_x4(1))
 _myFFT
 (

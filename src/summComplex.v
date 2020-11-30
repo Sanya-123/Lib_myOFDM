@@ -48,5 +48,11 @@ module summComplex #(parameter DATA_FFT_SIZE = 16)(
         if(en)  data_out0_q <= data_in0_q + data_in1_q;
 //        else    data_out0_q <= 0;
     end
+
+//    output [DATA_FFT_SIZE-1:0] data_out0_i;
+//    output [DATA_FFT_SIZE-1:0] data_out0_q;
+    
+//    assign data_out0_i = data_in0_i + data_in1_i;
+//    assign data_out0_q = data_in0_q + data_in1_q;
     
 endmodule

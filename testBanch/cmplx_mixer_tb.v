@@ -42,20 +42,22 @@ begin
 end
 
 always
-    #10 clk = !clk;
+    #5 clk = !clk;
     
 integer i;
     
 initial
 begin
+    #10;
     for(i = 0; i < 8; i = i + 1)
     begin
         valid = 1'b1;
         dataCos = memCos[i];
         dataSin = memSin[i];
-        #100
-        valid = 1'b0;
-        #100;
+        #10;
+//        #100
+//        valid = 1'b0;
+//        #100;
     end
 end
     

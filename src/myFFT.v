@@ -225,7 +225,8 @@ module myFFT
             begin
                 //машина конечных состоояние по состоянию данных
                 case(state)
-                stateWaytData : if(counterReciveDataFFT == 4) state <= stateComplete;//сдесь можно ускорить на 1 такт
+                stateWaytData : if((counterReciveDataFFT == 3) & valid) /*state <= stateComplete*/ state <= stateSummFFT;//сдесь можно ускорить на 1 такт
+                stateSummFFT:   state <= stateComplete;
                 stateComplete : if((counterSendData == 3) & flag_ready_recive)   state <= stateWaytData;//when all data is send wayt anouther data
                 endcase
             end
@@ -248,66 +249,114 @@ module myFFT
                         case(counterReciveDataFFT)
                         0:
                         begin
-                            data_out_mas_i[0] = data_in_i;
-                            data_out_mas_q[0] = data_in_q;
+                            data_out_mas_i[0] <= data_in_i;
+                            data_out_mas_q[0] <= data_in_q;
                             
-                            data_out_mas_i[numm_1] = data_in_i;
-                            data_out_mas_q[numm_1] = data_in_q;
+                            data_out_mas_i[numm_1] <= data_in_i;
+                            data_out_mas_q[numm_1] <= data_in_q;
                             
-                            data_out_mas_i[2] = data_in_i;
-                            data_out_mas_q[2] = data_in_q;
+                            data_out_mas_i[2] <= data_in_i;
+                            data_out_mas_q[2] <= data_in_q;
                             
-                            data_out_mas_i[numm_3] = data_in_i;
-                            data_out_mas_q[numm_3] = data_in_q;
+                            data_out_mas_i[numm_3] <= data_in_i;
+                            data_out_mas_q[numm_3] <= data_in_q;
                         end
                         1:
                         begin
-                            data_out_mas_i[0] = data_out_mas_i[0] + data_in_i;
-                            data_out_mas_q[0] = data_out_mas_q[0] + data_in_q;
+                            data_out_mas_i[0] <= data_out_mas_i[0] + data_in_i;
+                            data_out_mas_q[0] <= data_out_mas_q[0] + data_in_q;
                             
-                            data_out_mas_i[numm_1] = data_out_mas_i[numm_1] + data_in_q;
-                            data_out_mas_q[numm_1] = data_out_mas_q[numm_1] - data_in_i;
+                            data_out_mas_i[numm_1] <= data_out_mas_i[numm_1] + data_in_q;
+                            data_out_mas_q[numm_1] <= data_out_mas_q[numm_1] - data_in_i;
                             
-                            data_out_mas_i[2] = data_out_mas_i[2] - data_in_i;
-                            data_out_mas_q[2] = data_out_mas_q[2] - data_in_q;
+                            data_out_mas_i[2] <= data_out_mas_i[2] - data_in_i;
+                            data_out_mas_q[2] <= data_out_mas_q[2] - data_in_q;
                             
-                            data_out_mas_i[numm_3] = data_out_mas_i[numm_3] - data_in_q;
-                            data_out_mas_q[numm_3] = data_out_mas_q[numm_3] + data_in_i;
+                            data_out_mas_i[numm_3] <= data_out_mas_i[numm_3] - data_in_q;
+                            data_out_mas_q[numm_3] <= data_out_mas_q[numm_3] + data_in_i;
                         end
                         2:
                         begin
-                            data_out_mas_i[0] = data_out_mas_i[0] + data_in_i;
-                            data_out_mas_q[0] = data_out_mas_q[0] + data_in_q;
+                            data_out_mas_i[0] <= data_out_mas_i[0] + data_in_i;
+                            data_out_mas_q[0] <= data_out_mas_q[0] + data_in_q;
                             
-                            data_out_mas_i[numm_1] = data_out_mas_i[numm_1] - data_in_i;
-                            data_out_mas_q[numm_1] = data_out_mas_q[numm_1] - data_in_q;
+                            data_out_mas_i[numm_1] <= data_out_mas_i[numm_1] - data_in_i;
+                            data_out_mas_q[numm_1] <= data_out_mas_q[numm_1] - data_in_q;
                             
-                            data_out_mas_i[2] = data_out_mas_i[2] + data_in_i;
-                            data_out_mas_q[2] = data_out_mas_q[2] + data_in_q;
+                            data_out_mas_i[2] <= data_out_mas_i[2] + data_in_i;
+                            data_out_mas_q[2] <= data_out_mas_q[2] + data_in_q;
                             
-                            data_out_mas_i[numm_3] = data_out_mas_i[numm_3] - data_in_i;
-                            data_out_mas_q[numm_3] = data_out_mas_q[numm_3] - data_in_q;
+                            data_out_mas_i[numm_3] <= data_out_mas_i[numm_3] - data_in_i;
+                            data_out_mas_q[numm_3] <= data_out_mas_q[numm_3] - data_in_q;
                         end
                         3:
                         begin
-                            data_out_mas_i[0] = data_out_mas_i[0] + data_in_i;
-                            data_out_mas_q[0] = data_out_mas_q[0] + data_in_q;
+                            data_out_mas_i[0] <= data_out_mas_i[0] + data_in_i;
+                            data_out_mas_q[0] <= data_out_mas_q[0] + data_in_q;
                             
-                            data_out_mas_i[numm_1] = data_out_mas_i[numm_1] - data_in_q;
-                            data_out_mas_q[numm_1] = data_out_mas_q[numm_1] + data_in_i;
+                            data_out_mas_i[numm_1] <= data_out_mas_i[numm_1] - data_in_q;
+                            data_out_mas_q[numm_1] <= data_out_mas_q[numm_1] + data_in_i;
                             
-                            data_out_mas_i[2] = data_out_mas_i[2] - data_in_i;
-                            data_out_mas_q[2] = data_out_mas_q[2] - data_in_q;
+                            data_out_mas_i[2] <= data_out_mas_i[2] - data_in_i;
+                            data_out_mas_q[2] <= data_out_mas_q[2] - data_in_q;
                             
-                            data_out_mas_i[numm_3] = data_out_mas_i[numm_3] + data_in_q;
-                            data_out_mas_q[numm_3] = data_out_mas_q[numm_3] - data_in_i;
+                            data_out_mas_i[numm_3] <= data_out_mas_i[numm_3] + data_in_q;
+                            data_out_mas_q[numm_3] <= data_out_mas_q[numm_3] - data_in_i;
                         end
                         
                         endcase
-                        
-                        
+                            
+//                        case(counterReciveDataFFT)
+//                        0:
+//                        begin
+//                            data_out_mas_i[0] = data_in_i;
+//                            data_out_mas_q[0] = data_in_q;
+                            
+//                            data_out_mas_i[2] = data_in_i;
+//                            data_out_mas_q[2] = data_in_q;
+                            
+//                        end
+//                        1:
+//                        begin
+//                            data_out_mas_i[1] = data_in_i;
+//                            data_out_mas_q[1] = data_in_q;
+                            
+//                            data_out_mas_i[3] = data_in_i;
+//                            data_out_mas_q[3] = data_in_q;
+//                        end
+//                        2:
+//                        begin
+//                            data_out_mas_i[0] = data_out_mas_i[0] + data_in_i;
+//                            data_out_mas_q[0] = data_out_mas_q[0] + data_in_q;
+                            
+//                            data_out_mas_i[2] = data_out_mas_i[2] - data_in_i;
+//                            data_out_mas_q[2] = data_out_mas_q[2] - data_in_q;
+//                        end
+//                        3:
+//                        begin                           
+//                            data_out_mas_i[1] = data_out_mas_i[1] + data_in_i;
+//                            data_out_mas_q[1] = data_out_mas_q[1] + data_in_q;
+                            
+//                            data_out_mas_i[3] = data_out_mas_i[3] - data_in_i;
+//                            data_out_mas_q[3] = data_out_mas_q[3] - data_in_q;
+//                        end
+//                        endcase  
                     end
                 end
+//                else if(state == stateSummFFT)
+//                begin
+//                    data_out_mas_i[0] <= data_out_mas_i[0] + data_out_mas_i[1];
+//                    data_out_mas_q[0] <= data_out_mas_q[0] + data_out_mas_q[1];
+                    
+//                    data_out_mas_i[numm_1] <= data_out_mas_i[2] + data_out_mas_q[3];
+//                    data_out_mas_q[numm_1] <= data_out_mas_q[2] - data_out_mas_i[3];
+                    
+//                    data_out_mas_i[2] <= data_out_mas_i[0] - data_out_mas_i[1];
+//                    data_out_mas_q[2] <= data_out_mas_q[0] - data_out_mas_q[1];
+                    
+//                    data_out_mas_i[numm_3] <= data_out_mas_i[2] - data_out_mas_q[3];
+//                    data_out_mas_q[numm_3] <= data_out_mas_q[2] + data_out_mas_i[3];
+//                end
                 else counterReciveDataFFT <= 0;//когда все математические операции выполнены можно заново принимать данные
             end
         end
@@ -335,10 +384,17 @@ module myFFT
         
         reg reg_flag_wayt_data = 1'b1;
         assign flag_wayt_data = reg_flag_wayt_data;
+//        always @ (posedge clk)
+//        begin : FLAG_RECIVE_FFT
+//            if((counterReciveDataFFT < 4))  reg_flag_wayt_data <= 1'b1;
+//            else                            reg_flag_wayt_data <= 1'b0;
+
+//        end
+
         always @ (posedge clk)
-        begin : FLAG_RECIVE_FFT
-            if((counterReciveDataFFT < 4))  reg_flag_wayt_data <= 1'b1;
-            else                            reg_flag_wayt_data <= 1'b0;
+        begin : flagReciveFFT
+            if((counterReciveDataFFT == 3) & valid)  reg_flag_wayt_data <= 1'b0;
+            else                            reg_flag_wayt_data <= 1'b1;
 
         end
         
@@ -437,14 +493,18 @@ module myFFT
         reg [SIZE_BUFFER-1:0] counterReadData_chet;
         reg [SIZE_BUFFER-1:0] counterReadData_Nchet;
         reg [SIZE_BUFFER-1:0] counterMultData = 0;
-        reg [SIZE_BUFFER-1:0] counterMultData2 = 0;
+//        reg [SIZE_BUFFER-1:0] counterMultData2 = 0;
+        wire [SIZE_BUFFER-1:0] counterMultData2;
         reg mutDone = 1'b0;
         
         reg validChet = 1'b1;
         reg validNChet = 1'b0;
         
-        reg resiveFromChet = 1'b1;
-        reg resiveFromNChet = 1'b1;
+//        reg resiveFromChet = 1'b1;
+//        reg resiveFromNChet = 1'b1;
+
+        wire resiveFromChet;
+        wire resiveFromNChet;
         
         
         wire flag_wayt_data_chet;
@@ -511,7 +571,7 @@ module myFFT
         assign flag_wayt_data = reg_flag_wayt_data;
         
         always @(posedge clk)
-        begin
+        begin : flagWaytData
 //            if((counterMultData2 == /*NFFT/4*/1))   reg_flag_wayt_data <= 1'b1;//FFT64 + 0
 //            if((counterMultData2 == /*NFFT/4*/1) | ((resiveFromNChet == 1'b0) & (counterMultData2 == 0)))   reg_flag_wayt_data <= 1'b1;//FFT64+5 //неболоьшое ускорении, но при FFT8 - 16 может криво работать
             if((counterMultData2 == /*NFFT/4*/1) | (flag_complete_Nchet & (counterMultData2 == 0)))   reg_flag_wayt_data <= 1'b1;//FFT64+6
@@ -569,179 +629,215 @@ module myFFT
         end
         
             /*****************************SLOW FFT*****************************/
-            reg enMult = 1'b0;
-            reg [SIZE_OUT_DATA_S_FFT-1:0] multData_i;
-            reg [SIZE_OUT_DATA_S_FFT-1:0] multData_q;
-            reg [15:0] phi = 16'd0;
-            
-            wire [SIZE_OUT_DATA-1:0] res_m_phi_i;
-            wire [SIZE_OUT_DATA-1:0] res_m_phi_q;
-            wire [SIZE_OUT_DATA-1:0] res_p_phi_i;
-            wire [SIZE_OUT_DATA-1:0] res_p_phi_q;
-            wire dataComplete;
-            
-            multComplexE #(.SIZE_DATA_FI(SIZE_BUFFER)/*LOG2(NFFT)*/, .DATA_FFT_SIZE(SIZE_OUT_DATA_S_FFT), .FAST(FAST), .TYPE(TYPE), .COMPENS_FP(COMPENS_FP))
-            _multComplexE
-                (
-                .clk(clk),
-                .en(enMult),
-                .in_data_i(multData_i),
-                .in_data_q(multData_q),
-                .fi_deg(phi),
-                .out_data_minus_i(res_m_phi_i),
-                .out_data_minus_q(res_m_phi_q),
-                .out_data_plus_i(res_p_phi_i),
-                .out_data_plus_q(res_p_phi_q),
-                .outValid(dataComplete)
-                );
-                
             wire [SIZE_OUT_DATA-1:0] out_summ_0__NFFT_2_i;
             wire [SIZE_OUT_DATA-1:0] out_summ_0__NFFT_2_q;
             wire [SIZE_OUT_DATA-1:0] out_summ_NFFT_2__NFFT_i;
             wire [SIZE_OUT_DATA-1:0] out_summ_NFFT_2__NFFT_q;
             
-            reg [SIZE_OUT_DATA_S_FFT-1:0] data_summ_chet_i = 0;
-            reg [SIZE_OUT_DATA_S_FFT-1:0] data_summ_chet_q = 0;
             
-            wire [SIZE_OUT_DATA-1:0] w_data_summ_chet_i;
-            wire [SIZE_OUT_DATA-1:0] w_data_summ_chet_q;
+//            reg enMult = 1'b0;
+//            reg [SIZE_OUT_DATA_S_FFT-1:0] multData_i;
+//            reg [SIZE_OUT_DATA_S_FFT-1:0] multData_q;
+//            reg [15:0] phi = 16'd0;
             
-            if((COMPENS_FP == "add") && (SIZE_OUT_DATA > SIZE_OUT_DATA_S_FFT))//если разная разрядность то должен учитывать знак
-            begin
-                assign w_data_summ_chet_i[SIZE_OUT_DATA-1:1] = data_summ_chet_i[SIZE_OUT_DATA_S_FFT-1:0];
-                assign w_data_summ_chet_q[SIZE_OUT_DATA-1:1] = data_summ_chet_q[SIZE_OUT_DATA_S_FFT-1:0];
+//            wire [SIZE_OUT_DATA-1:0] res_m_phi_i;
+//            wire [SIZE_OUT_DATA-1:0] res_m_phi_q;
+//            wire [SIZE_OUT_DATA-1:0] res_p_phi_i;
+//            wire [SIZE_OUT_DATA-1:0] res_p_phi_q;
+//            wire dataComplete;
+            
+//            multComplexE #(.SIZE_DATA_FI(SIZE_BUFFER)/*LOG2(NFFT)*/, .DATA_FFT_SIZE(SIZE_OUT_DATA_S_FFT), .FAST(FAST), .TYPE(TYPE), .COMPENS_FP(COMPENS_FP))
+//            _multComplexE
+//                (
+//                .clk(clk),
+//                .en(enMult),
+//                .in_data_i(multData_i),
+//                .in_data_q(multData_q),
+//                .fi_deg(phi),
+//                .out_data_minus_i(res_m_phi_i),
+//                .out_data_minus_q(res_m_phi_q),
+//                .out_data_plus_i(res_p_phi_i),
+//                .out_data_plus_q(res_p_phi_q),
+//                .outValid(dataComplete)
+//                );
+            
+//            reg [SIZE_OUT_DATA_S_FFT-1:0] data_summ_chet_i = 0;
+//            reg [SIZE_OUT_DATA_S_FFT-1:0] data_summ_chet_q = 0;
+            
+//            wire [SIZE_OUT_DATA-1:0] w_data_summ_chet_i;
+//            wire [SIZE_OUT_DATA-1:0] w_data_summ_chet_q;
+            
+//            if((COMPENS_FP == "add") && (SIZE_OUT_DATA > SIZE_OUT_DATA_S_FFT))//если разная разрядность то должен учитывать знак
+//            begin
+//                assign w_data_summ_chet_i[SIZE_OUT_DATA-1:1] = data_summ_chet_i[SIZE_OUT_DATA_S_FFT-1:0];
+//                assign w_data_summ_chet_q[SIZE_OUT_DATA-1:1] = data_summ_chet_q[SIZE_OUT_DATA_S_FFT-1:0];
                 
-                assign w_data_summ_chet_i[0] = 0;
-                assign w_data_summ_chet_q[0] = 0;  
-            end
-            else
-            begin
-                assign w_data_summ_chet_i = data_summ_chet_i;
-                assign w_data_summ_chet_q = data_summ_chet_q;
-            end
+//                assign w_data_summ_chet_i[0] = 0;
+//                assign w_data_summ_chet_q[0] = 0;  
+//            end
+//            else
+//            begin
+//                assign w_data_summ_chet_i = data_summ_chet_i;
+//                assign w_data_summ_chet_q = data_summ_chet_q;
+//            end
                 
-            summComplex #(.DATA_FFT_SIZE(SIZE_OUT_DATA)) 
-            _summ0__NFFT_2(
-                .clk(clk),
-                .en(/*state == stateSummFFT*/1'b1),
-                .data_in0_i(w_data_summ_chet_i),
-                .data_in0_q(w_data_summ_chet_q),
-                .data_in1_i(res_m_phi_i),
-                .data_in1_q(res_m_phi_q),
-                .data_out0_i(out_summ_0__NFFT_2_i),
-                .data_out0_q(out_summ_0__NFFT_2_q)
-            );
-            summComplex #(.DATA_FFT_SIZE(SIZE_OUT_DATA)) 
-            _summNFFT_2__NFFT(
-                .clk(clk),
-                .en(/*state == stateSummFFT*/1'b1),
-                .data_in0_i(w_data_summ_chet_i),
-                .data_in0_q(w_data_summ_chet_q),
-                .data_in1_i(res_p_phi_i),
-                .data_in1_q(res_p_phi_q),
-                .data_out0_i(out_summ_NFFT_2__NFFT_i),
-                .data_out0_q(out_summ_NFFT_2__NFFT_q)
-            );
+//            summComplex #(.DATA_FFT_SIZE(SIZE_OUT_DATA)) 
+//            _summ0__NFFT_2(
+//                .clk(clk),
+//                .en(/*state == stateSummFFT*/1'b1),
+//                .data_in0_i(w_data_summ_chet_i),
+//                .data_in0_q(w_data_summ_chet_q),
+//                .data_in1_i(res_m_phi_i),
+//                .data_in1_q(res_m_phi_q),
+//                .data_out0_i(out_summ_0__NFFT_2_i),
+//                .data_out0_q(out_summ_0__NFFT_2_q)
+//            );
+//            summComplex #(.DATA_FFT_SIZE(SIZE_OUT_DATA)) 
+//            _summNFFT_2__NFFT(
+//                .clk(clk),
+//                .en(/*state == stateSummFFT*/1'b1),
+//                .data_in0_i(w_data_summ_chet_i),
+//                .data_in0_q(w_data_summ_chet_q),
+//                .data_in1_i(res_p_phi_i),
+//                .data_in1_q(res_p_phi_q),
+//                .data_out0_i(out_summ_NFFT_2__NFFT_i),
+//                .data_out0_q(out_summ_NFFT_2__NFFT_q)
+//            );
             
 
             
-            reg beginReadSummData = 1'b0;
-            reg flagWayt = 1'b1;//flag ожидать пока начнеться умножения
+//            reg beginReadSummData = 1'b0;
+//            reg flagWayt = 1'b1;//flag ожидать пока начнеться умножения
             
-            reg old_flag_complete_chet = 1'b0;
-            reg old_flag_complete_Nchet = 1'b0;
+//            reg old_flag_complete_chet = 1'b0;
+//            reg old_flag_complete_Nchet = 1'b0;
             
                 
-            always @(posedge clk)//summ FFT
-            begin : summFFT
+//            always @(posedge clk)//summ FFT
+//            begin : summFFT
                 
-                if(reset)
-                begin
-                    resiveFromChet <= 1'b1;
-                    resiveFromNChet <= 1'b1;
-                    enMult <= 1'b0;
-                    counterMultData2 <= 0;
-                end
-                else
-                begin
-                    if(flag_complete_chet | old_flag_complete_chet)
-                    begin
-                        if(resiveFromChet) 
-                        begin 
-                            if(flag_complete_chet)   old_flag_complete_chet <= 1'b1;
-                        end
-                        else
-                        begin
-                            if({dataComplete, enMult, flagWayt, flag_complete_chet} == 4'b1000)
-                            begin
-                                if(counterMultData2 == (NFFT/2 - 1)) old_flag_complete_chet <= 0;
-                            end
-                        end
-                        
-                        
-                        if(resiveFromChet) data_summ_chet_i <= data_from_secondFFT_chet_i;
-                        if(resiveFromChet) data_summ_chet_q <= data_from_secondFFT_chet_q;
-                        
-                        if(resiveFromChet) flagWayt <= 1'b1;
-                        
-                        if(resiveFromChet) resiveFromChet <= 1'b0;
-                        
+//                if(reset)
+//                begin
+//                    resiveFromChet <= 1'b1;
+//                    resiveFromNChet <= 1'b1;
+//                    enMult <= 1'b0;
+//                    counterMultData2 <= 0;
+//                end
+//                else
+//                begin
+//                    if(flag_complete_chet | old_flag_complete_chet)
+//                    begin
 //                        if(resiveFromChet) 
-//                        begin
-//                            if(delay_resiveFromChet) resiveFromChet <= 1'b0;
-//                            else if(delay_flag_complete_chet) resiveFromChet <= 1'b0;
+//                        begin 
+//                            if(flag_complete_chet)   old_flag_complete_chet <= 1'b1;
 //                        end
-                        else
-                        begin
-                            if(flagWayt)    flagWayt <= /*dataComplete*//*0*/resiveFromNChet;//сначало жду пока опуститься флаг что умножения началось
-                            else if({dataComplete, enMult} == 2'b10)
-                            begin
-                                resiveFromChet <= 1'b1;
-                            end
-                        end
-                    end
+//                        else
+//                        begin
+//                            if({dataComplete, enMult, flagWayt, flag_complete_chet} == 4'b1000)
+//                            begin
+//                                if(counterMultData2 == (NFFT/2 - 1)) old_flag_complete_chet <= 0;
+//                            end
+//                        end
+                        
+                        
+//                        if(resiveFromChet) data_summ_chet_i <= data_from_secondFFT_chet_i;
+//                        if(resiveFromChet) data_summ_chet_q <= data_from_secondFFT_chet_q;
+                        
+//                        if(resiveFromChet) flagWayt <= 1'b1;
+                        
+//                        if(resiveFromChet) resiveFromChet <= 1'b0;
+                        
+////                        if(resiveFromChet) 
+////                        begin
+////                            if(delay_resiveFromChet) resiveFromChet <= 1'b0;
+////                            else if(delay_flag_complete_chet) resiveFromChet <= 1'b0;
+////                        end
+//                        else
+//                        begin
+//                            if(flagWayt)    flagWayt <= /*dataComplete*//*0*/resiveFromNChet;//сначало жду пока опуститься флаг что умножения началось
+//                            else if({dataComplete, enMult} == 2'b10)
+//                            begin
+//                                resiveFromChet <= 1'b1;
+//                            end
+//                        end
+//                    end
                     
-                    if(flag_complete_Nchet | old_flag_complete_Nchet)
-                    begin
+//                    if(flag_complete_Nchet | old_flag_complete_Nchet)
+//                    begin
                     
-                        if(resiveFromNChet) 
-                        begin 
-                            if(flag_complete_Nchet)   old_flag_complete_Nchet <= 1'b1;
-                        end
-                        else
-                        begin
-                            if({dataComplete, enMult, flag_complete_Nchet} == 3'b100)
-                            begin
-                                if(counterMultData2 == (NFFT/2 - 1)) old_flag_complete_Nchet <= 0;
-                            end
-                        end
-//                        if(flag_complete_Nchet)                 old_flag_complete_Nchet <= 1'b1;
-//                        else if(counterMultData2 >= (NFFT/2))                 old_flag_complete_Nchet <= 1'b0;
+//                        if(resiveFromNChet) 
+//                        begin 
+//                            if(flag_complete_Nchet)   old_flag_complete_Nchet <= 1'b1;
+//                        end
+//                        else
+//                        begin
+//                            if({dataComplete, enMult, flag_complete_Nchet} == 3'b100)
+//                            begin
+//                                if(counterMultData2 == (NFFT/2 - 1)) old_flag_complete_Nchet <= 0;
+//                            end
+//                        end
+////                        if(flag_complete_Nchet)                 old_flag_complete_Nchet <= 1'b1;
+////                        else if(counterMultData2 >= (NFFT/2))                 old_flag_complete_Nchet <= 1'b0;
                         
-                        if(resiveFromNChet) multData_i <= data_from_secondFFT_Nchet_i;
-                        if(resiveFromNChet) multData_q <= data_from_secondFFT_Nchet_q;
+//                        if(resiveFromNChet) multData_i <= data_from_secondFFT_Nchet_i;
+//                        if(resiveFromNChet) multData_q <= data_from_secondFFT_Nchet_q;
                         
-                        if(resiveFromNChet) enMult <= 1'b1;
+//                        if(resiveFromNChet) enMult <= 1'b1;
                         
-                        if(resiveFromNChet) if(mutDone)    counterMultData2 <= counterMultData2 - NFFT/2;
+//                        if(resiveFromNChet) if(mutDone)    counterMultData2 <= counterMultData2 - NFFT/2;
                         
-                        if(resiveFromNChet) resiveFromNChet <= 1'b0;
-                        else
-                        begin
-                            enMult <= 1'b0;
-                            if({dataComplete, enMult} == 2'b10)
-                            begin
-                                resiveFromNChet <= 1'b1;
-                                if(mutDone)     counterMultData2 <= counterMultData2 - NFFT/2 + 1;
-                                else            counterMultData2 <= counterMultData2 + 1;
-                            end
-                            else if(mutDone)    counterMultData2 <= counterMultData2 - NFFT/2;//TODO возможно обнулить
-                        end
-                    end
-                    else if(mutDone)    counterMultData2 <= counterMultData2 - NFFT/2;//TODO возможно обнулить
-                end
+//                        if(resiveFromNChet) resiveFromNChet <= 1'b0;
+//                        else
+//                        begin
+//                            enMult <= 1'b0;
+//                            if({dataComplete, enMult} == 2'b10)
+//                            begin
+//                                resiveFromNChet <= 1'b1;
+//                                if(mutDone)     counterMultData2 <= counterMultData2 - NFFT/2 + 1;
+//                                else            counterMultData2 <= counterMultData2 + 1;
+//                                phi <= phi + 1;
+//                            end
+//                            else if(mutDone)    counterMultData2 <= counterMultData2 - NFFT/2;//TODO возможно обнулить
+//                        end
+//                    end
+//                    else if(mutDone)    counterMultData2 <= counterMultData2 - NFFT/2;//TODO возможно обнулить
+//                end
             
+//            end
+
+            interconnect_two_sFFT_to_mFFT #(   .SIZE_BUFFER(SIZE_BUFFER),/*log2(NFFT)*/
+                                               .SIZE_OUT_DATA_S_FFT(SIZE_OUT_DATA_S_FFT),
+                                               .SIZE_OUT_DATA(SIZE_OUT_DATA),
+                                               .TYPE(TYPE),/*forvard invers*/
+                                               .COMPENS_FP(COMPENS_FP), /*false true or add razrad*/
+                                               .FAST(FAST)/*slow fast ultrafast slow mult x1 fast mult x2 ultrafast mult x4*/)
+            _interconnect_two_sFFT_to_mFFT(
+                .clk(clk),
+                .reset(reset),
                 
+                .data_from_secondFFT_chet_i(data_from_secondFFT_chet_i),
+                .data_from_secondFFT_chet_q(data_from_secondFFT_chet_q),
+                .data_from_secondFFT_Nchet_i(data_from_secondFFT_Nchet_i),
+                .data_from_secondFFT_Nchet_q(data_from_secondFFT_Nchet_q),
+                
+                .flag_complete_chet(flag_complete_chet),
+                .flag_complete_Nchet(flag_complete_Nchet),
+                
+                .resiveFromChet(resiveFromChet),
+                .resiveFromNChet(resiveFromNChet),
+                
+                .mutDone(mutDone),
+                
+                .out_summ_0__NFFT_2_i(out_summ_0__NFFT_2_i),
+                .out_summ_0__NFFT_2_q(out_summ_0__NFFT_2_q),
+                .out_summ_NFFT_2__NFFT_i(out_summ_NFFT_2__NFFT_i),
+                .out_summ_NFFT_2__NFFT_q(out_summ_NFFT_2__NFFT_q),
+                
+                .counterMultData2(counterMultData2)
+            );
+            
+            always @(posedge clk)//summ FFT
+            begin : bufferingSummFFT
                 if(mutDone | reset)
                 begin
                     mutDone <= 1'b0;
@@ -755,7 +851,7 @@ module myFFT
                 begin
                     if(counterMultData2 > counterMultData) 
                     begin
-                        phi <= phi + 1;
+//                        phi <= phi + 1;
                         counterMultData <= counterMultData + 1;
     //                            data_summ_out_mas_i_r[counterMultData2] <= out_summ_0__NFFT_2_i;
                         _data_summ_out_mas_i_r_addr_c <= counterMultData[SIZE_BUFFER-2:0];
