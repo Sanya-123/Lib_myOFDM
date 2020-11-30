@@ -42,30 +42,43 @@ wire module_en;
 //wire [15:0] res_p_phi_i_f;
 //wire [15:0] res_p_phi_q_f;
 
+integer i;
+
     initial
     begin
-        phi = 16'd1;//90
+//        phi = 16'd1;//90
+//        en = 0;
+//        #30
+//        en = 1;
+////        #30
+////        en = 0;
+//        #180
+//        phi = 16'd0;//45
+//        #150
+//        phi = 16'd2;//22.5
+//        #150
+//        phi = 16'd2;//180
+//        #150
+//        phi = 16'd0;//-90
+//        #150
+//        phi = 16'd0;//-45
+//        #150
+//        phi = 16'd3;
+
         en = 0;
         #30
         en = 1;
-//        #30
-//        en = 0;
-        #180
-        phi = 16'd0;//45
-        #150
-        phi = 16'd2;//22.5
-        #150
-        phi = 16'd2;//180
-        #150
-        phi = 16'd0;//-90
-        #150
-        phi = 16'd0;//-45
-        #150
-        phi = 16'd3;
+        for(i = 0;i < 8;i = i + 1)
+        begin
+            phi = i;//90
+           #10 ;
+        end
+        #20;
+        en = 0;
         
     end
 
-multComplexE #(.SIZE_DATA_FI(3)/*LOG2(NFFT)*/, .DATA_FFT_SIZE(16), .TYPE("forvard"), .COMPENS_FP("add")/*false add*/)
+multComplexE #(.SIZE_DATA_FI(4)/*LOG2(NFFT)*/, .DATA_FFT_SIZE(16), .TYPE("forvard"), .COMPENS_FP("add")/*false add*/)
 _multComplexE
     (
     .clk(clk),

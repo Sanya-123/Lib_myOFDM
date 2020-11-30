@@ -53,7 +53,7 @@ module multComplexE #(parameter SIZE_DATA_FI = 2/*LOG2(NFFT)*/,
     output [DATA_FFT_SIZE-1 + (COMPENS_FP=="add"?1:0) :0] out_data_minus_q;
     output [DATA_FFT_SIZE-1 + (COMPENS_FP=="add"?1:0) :0] out_data_plus_i;
     output [DATA_FFT_SIZE-1 + (COMPENS_FP=="add"?1:0) :0] out_data_plus_q;
-    output reg outValid = 1'b1;
+    output reg outValid = 1'b0;
     
     //входные данные 1 а фазы то зеркальные
     assign out_data_plus_i = -out_data_minus_i;
@@ -72,45 +72,16 @@ module multComplexE #(parameter SIZE_DATA_FI = 2/*LOG2(NFFT)*/,
     reg multDone = 1'b0;
 
     
-    
-//    // 1:когда приходит информация по отрицательному клоку выставляю данные на шину выставляю en 
-//    // 2:в следуйший такт убирают en(valid) и дальше жду пока обы модуля вычисля
-//    // 3:оба модуля вычислили и выставляю такт что оба модуля все вычислсли
-//    always @(posedge clk)
-//    begin
-////        if(en & /*minusReady & plusReady &*/ outValid/*если пришли входные данные и модули готовы к расчеты и в буфере ничего нету*/) fi <= def_fi*fi_deg[SIZE_DATA_FI-2:0]; /*1*/
-//        if(en & /*minusReady & plusReady &*/ outValid)      begin outValid <= 1'b0; module_en <= 1'b1;  end /*1*/
-//        else if(/*minusValid & plusValid*/multDone)                 begin outValid <= 1'b1;                     end /*3*/
-//        else                                            begin                   module_en <= 1'b0;  end /*2*/
-//    end
-
-//    always @(posedge clk)
-//    begin
-//        if(en)          module_en <= 1'b1; 
-//        else            module_en <= 1'b0;
-//    end
-    
     reg [16:0] in_cos = 0;
     reg [16:0] in_sin = 0;
     
 //    wire [31:0] outData_i;
 //    wire [31:0] outData_q;
+
+    reg [DATA_FFT_SIZE-1:0] in_mult_data_i;
+    reg [DATA_FFT_SIZE-1:0] in_mult_data_q;
     
     wire multComplexComplete;
-    
-//    multComplex #(.SIZE_DATA(16), .FAST(FAST), .COMPENS_FP(COMPENS_FP))
-//    _multComplex(
-//    .clk(clk),
-//    .en(mult),
-//    .in_data1_i(in_data_i),
-//    .in_data1_q(in_data_q),
-//    .in_data2_i(in_cos),
-//    .in_data2_q(in_sin),
-//    .out_data_i(outData_i),
-//    .out_data_q(outData_q),
-//    .outputValid(multComplexComplete)
-//    );
-
 
     cmplx_mixer
     #(
@@ -128,8 +99,8 @@ module multComplexE #(parameter SIZE_DATA_FI = 2/*LOG2(NFFT)*/,
       .iclkena(1'b1) ,
       //
       .ival(mult)    ,
-      .idat_re(in_data_i) ,
-      .idat_im(in_data_q) ,
+      .idat_re(/*in_data_i*/in_mult_data_i) ,
+      .idat_im(/*in_data_q*/in_mult_data_q) ,
       //
       .icos(in_cos)    ,
       .isin(in_sin)    ,
@@ -146,48 +117,69 @@ module multComplexE #(parameter SIZE_DATA_FI = 2/*LOG2(NFFT)*/,
     //специальные cos sin для FFT
     /*(* ram_style="block" *)*/reg [16:0] cos [2**(SIZE_DATA_FI)/2-1:0];
     /*(* ram_style="block" *)*/reg [16:0] sin [2**(SIZE_DATA_FI)/2-1:0];
+
+    reg [3:0] timer_4clock = 0;
     
-//    assign out_data_minus_i = outData_i[DATA_FFT_SIZE-1 + (COMPENS_FP=="add"?1:0) :0];
-//    assign out_data_minus_q = outData_q[DATA_FFT_SIZE-1 + (COMPENS_FP=="add"?1:0) :0];
-//    if(FORVARD == "true")
+    
+//    always @(posedge clk)
 //    begin
-//    assign out_data_minus_q = -outData_q[30:15];
-//    end
-//    else
-//    begin
-//    assign out_data_minus_q = outData_q[30:15];
+        
+//        if(mult)        timer_4clock <= timer_4clock + 1;
+//        else if(en)     timer_4clock <= 1;
+//        else            timer_4clock <= 0;
+        
+//        if(timer_4clock == 3)   outValid <= 1'b1;
+//        else if(en)             outValid <= 1'b0;
+        
+//        if(en)
+//        begin
+//            if(!mult)   in_cos = cos[fi_deg[SIZE_DATA_FI-2:0]];
+//            if(TYPE == "forvard")
+//            begin
+//            if(!mult)   in_sin = sin[fi_deg[SIZE_DATA_FI-2:0]];
+//            end
+//            else if(TYPE == "invers")
+//            begin
+//            if(!mult)   in_sin = -sin[fi_deg[SIZE_DATA_FI-2:0]];
+//            end
+            
+            
+//            if(!mult) mult <= 1'b1;//begin mult(on second clk mult will be done)
+//            else if(timer_4clock == 3) mult <= 1'b0;
+//        end
+//        else if(timer_4clock == 3) mult <= 1'b0;
 //    end
 
-    reg [3:0] timer_4clock;
-    
-    
     always @(posedge clk)
     begin
         
-        if(mult)        timer_4clock <= timer_4clock + 1;
-        else if(en)     timer_4clock <= 1;
+        if(mult | en)   begin if(timer_4clock < 3) timer_4clock <= timer_4clock + 1;end
         else            timer_4clock <= 0;
         
         if(timer_4clock == 3)   outValid <= 1'b1;
-        else if(en)             outValid <= 1'b0;
+        else /*if(en)*/             outValid <= 1'b0;
         
         if(en)
         begin
-            if(!mult)   in_cos = cos[fi_deg[SIZE_DATA_FI-2:0]];
+            in_cos = cos[fi_deg[SIZE_DATA_FI-2:0]];
+            
             if(TYPE == "forvard")
             begin
-            if(!mult)   in_sin = sin[fi_deg[SIZE_DATA_FI-2:0]];
+                in_sin = sin[fi_deg[SIZE_DATA_FI-2:0]];
             end
             else if(TYPE == "invers")
             begin
-            if(!mult)   in_sin = -sin[fi_deg[SIZE_DATA_FI-2:0]];
+                in_sin = -sin[fi_deg[SIZE_DATA_FI-2:0]];
             end
+            
+            in_mult_data_i <= in_data_i;
+            in_mult_data_q <= in_data_q;
             
             
             if(!mult) mult <= 1'b1;//begin mult(on second clk mult will be done)
-            else if(timer_4clock == 3) mult <= 1'b0;
+            else if((timer_4clock == 3) & (en == 1'b0)) mult <= 1'b0;
         end
-        else if(timer_4clock == 3) mult <= 1'b0;
+        else if((timer_4clock == 3) & (en == 1'b0)) mult <= 1'b0;
     end
 
     initial

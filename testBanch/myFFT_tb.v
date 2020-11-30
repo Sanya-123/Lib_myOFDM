@@ -22,7 +22,7 @@
 
 module myFFT_tb();
 
-parameter SIZE_BUFFER = 5;
+parameter SIZE_BUFFER = 8;
 parameter NFFT = 2**SIZE_BUFFER;
 
 parameter SIZE_DATA  =  16;
@@ -84,6 +84,7 @@ end
 //        #400;
         
 //        #40
+//        #150
 //        vakidData = 1'b1;
 //        for(i = NFFT; i < NFFT*2; i = i + 1)
 //        begin
@@ -108,7 +109,7 @@ end
 
 //        #1740   
      
-        #6490
+        #1450
         vakidData = 1'b1;
         for(i = 0; i < NFFT; i = i + 1)
         begin
@@ -117,7 +118,7 @@ end
             #10;
         end
         vakidData = 1'b0;
-        #6480;
+        #1440;
         
 //        #1740;
         
@@ -204,13 +205,13 @@ end
 //    wire _flag_valid_NNNchet2;
 //wire [2:0] _counterMultData;
 
-    wire [SIZE_DATA-1:0] _out_summ_0__NFFT_2_i;
-    wire [SIZE_DATA-1:0] _out_summ_0__NFFT_2_q;
-    wire [SIZE_DATA-1:0] _out_summ_NFFT_2__NFFT_i;
-    wire [SIZE_DATA-1:0] _out_summ_NFFT_2__NFFT_q;
+//    wire [SIZE_DATA-1:0] _out_summ_0__NFFT_2_i;
+//    wire [SIZE_DATA-1:0] _out_summ_0__NFFT_2_q;
+//    wire [SIZE_DATA-1:0] _out_summ_NFFT_2__NFFT_i;
+//    wire [SIZE_DATA-1:0] _out_summ_NFFT_2__NFFT_q;
     
-    wire _resiveFromChet;
-    wire _resiveFromNChet;
+//    wire _resiveFromChet;
+//    wire _resiveFromNChet;
 
 //    wire __data_summ_out_mas_i_r_writeEn_c;
 //    wire [SIZE_BUFFER-2:0] __data_summ_out_mas_i_r_addr_c;
@@ -234,6 +235,12 @@ wire [SIZE_BUFFER:0] _counterMultData;
 //wire _enMult;
 //wire _dataComplete;
 
+    wire [17-1:0] d_out_summ_0__NFFT_2_i;
+    wire [17-1:0] d_out_summ_0__NFFT_2_q;
+    wire [17-1:0] d_out_summ_NFFT_2__NFFT_i;
+    wire [17-1:0] d_out_summ_NFFT_2__NFFT_q;
+    wire d_dataComplete;
+
 myFFT
 #(.SIZE_BUFFER(SIZE_BUFFER), .DATA_FFT_SIZE(SIZE_DATA), .TYPE("forvard")/*forvard invers*/, .FAST("ultrafast")/*slow fast ultrafast*/, 
   .COMPENS_FP(COMPENS_PF)/*false true or add razrad*/, .MIN_FFT_x4(1))
@@ -252,7 +259,7 @@ _myFFT
     .stateFFT(stateFFT),
     .flag_wayt_data(flag_wayt_data),
     .flag_ready_recive(flag_ready_read)
-//    ._counterMultData(_counterMultData),
+//    ._counterMultData(_counterMultData)
 ////    ._counterOutData(_counterOutData)
 //    ._out_summ_0__NFFT_2_i(_out_summ_0__NFFT_2_i),
 //    ._out_summ_0__NFFT_2_q(_out_summ_0__NFFT_2_q),
@@ -289,6 +296,12 @@ _myFFT
 //    .__data_summ_out_mas_i_r_addr_r_Nc(__data_summ_out_mas_i_r_addr_r_Nc),
 //    .__data_summ_out_mas_i_r_writeData_Nc(__data_summ_out_mas_i_r_writeData_Nc),
 //    .__data_summ_out_mas_i_r_readData_Nc(__data_summ_out_mas_i_r_readData_Nc)
+    ,.d_out_summ_0__NFFT_2_i(d_out_summ_0__NFFT_2_i)
+    ,.d_out_summ_0__NFFT_2_q(d_out_summ_0__NFFT_2_q)
+    ,.d_out_summ_NFFT_2__NFFT_i(d_out_summ_NFFT_2__NFFT_i)
+    ,.d_out_summ_NFFT_2__NFFT_q(d_out_summ_NFFT_2__NFFT_q)
+    ,.d_dataComplete(d_dataComplete)
+    ,.d__counterMultData(_counterMultData)
 );
 
 //myFFT

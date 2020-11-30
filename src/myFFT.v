@@ -21,6 +21,7 @@
 // in slow mode mult coplete CONSISTENTLY in fast mode mult complete PARAPERLITY
 // NOTE при парарельном использовании данных если долго не считывать данные они могут затереться
 // для быльшей точности от умножения тут добавляеться разряд если COMPENS_FP==add
+// NOTE при малых FFT (FFT8) если закидывать данные сразу после того как выставиться флаг, данные могут затереться
 //////////////////////////////////////////////////////////////////////////////////
 
 /*
@@ -56,6 +57,12 @@ module myFFT
     flag_ready_recive,/*input flags for output data*/
     flag_wayt_data/*flag can recive daat data*/
     //debug
+    ,d_out_summ_0__NFFT_2_i,
+    d_out_summ_0__NFFT_2_q,
+    d_out_summ_NFFT_2__NFFT_i,
+    d_out_summ_NFFT_2__NFFT_q,
+    d_dataComplete,
+    d__counterMultData
     );
     
     localparam NFFT = 1 << SIZE_BUFFER;
@@ -83,6 +90,13 @@ module myFFT
     
     input flag_ready_recive;
     output /*reg*/ flag_wayt_data;
+    
+    output [SIZE_OUT_DATA-1:0] d_out_summ_0__NFFT_2_i;
+    output [SIZE_OUT_DATA-1:0] d_out_summ_0__NFFT_2_q;
+    output [SIZE_OUT_DATA-1:0] d_out_summ_NFFT_2__NFFT_i;
+    output [SIZE_OUT_DATA-1:0] d_out_summ_NFFT_2__NFFT_q;
+    output d_dataComplete;
+    output [SIZE_BUFFER:0] d__counterMultData;
     
 
     assign clk_o_data = clk;//NOTE возможно потребуеться давать клок только когда данные отправляюьбся
@@ -212,7 +226,7 @@ module myFFT
         end
         
     end
-    else if((MIN_FFT_x4==1) && (NFFT == 4))
+    else if((MIN_FFT_x4==1) && (NFFT == 4)) //+
     begin
     
         reg [DATA_FFT_SIZE-1:0] data_out_mas_i [3:0];
@@ -570,7 +584,7 @@ module myFFT
 
         assign flag_wayt_data = reg_flag_wayt_data;
         
-        always @(posedge clk)
+        always @(posedge clk)//TODO
         begin : flagWaytData
 //            if((counterMultData2 == /*NFFT/4*/1))   reg_flag_wayt_data <= 1'b1;//FFT64 + 0
 //            if((counterMultData2 == /*NFFT/4*/1) | ((resiveFromNChet == 1'b0) & (counterMultData2 == 0)))   reg_flag_wayt_data <= 1'b1;//FFT64+5 //неболоьшое ускорении, но при FFT8 - 16 может криво работать
@@ -583,7 +597,7 @@ module myFFT
         reg completeDoneNChet = 1'b0;
         
 //        wire stateToComplete = mutDone;//флаг перехода в состояние отправки данных
-        wire stateToComplete = counterMultData2 == (NFFT/2 - NFFT/12);//флаг перехода в состояние отправки данных
+        wire stateToComplete = (counterMultData2 == (NFFT/2 - NFFT/12)) | mutDone;//флаг перехода в состояние отправки данных
         //данные можно уже выкидывать когда досчитываються последнии 20%
         //т.е. при FFT 256 можно выкидывать данные когда посчиталось ~100 
         
@@ -634,176 +648,11 @@ module myFFT
             wire [SIZE_OUT_DATA-1:0] out_summ_NFFT_2__NFFT_i;
             wire [SIZE_OUT_DATA-1:0] out_summ_NFFT_2__NFFT_q;
             
+//            wire [SIZE_OUT_DATA-1:0] d_out_summ_0__NFFT_2_i;
+//            wire [SIZE_OUT_DATA-1:0] d_out_summ_0__NFFT_2_q;
+//            wire [SIZE_OUT_DATA-1:0] d_out_summ_NFFT_2__NFFT_i;
+//            wire [SIZE_OUT_DATA-1:0] d_out_summ_NFFT_2__NFFT_q;
             
-//            reg enMult = 1'b0;
-//            reg [SIZE_OUT_DATA_S_FFT-1:0] multData_i;
-//            reg [SIZE_OUT_DATA_S_FFT-1:0] multData_q;
-//            reg [15:0] phi = 16'd0;
-            
-//            wire [SIZE_OUT_DATA-1:0] res_m_phi_i;
-//            wire [SIZE_OUT_DATA-1:0] res_m_phi_q;
-//            wire [SIZE_OUT_DATA-1:0] res_p_phi_i;
-//            wire [SIZE_OUT_DATA-1:0] res_p_phi_q;
-//            wire dataComplete;
-            
-//            multComplexE #(.SIZE_DATA_FI(SIZE_BUFFER)/*LOG2(NFFT)*/, .DATA_FFT_SIZE(SIZE_OUT_DATA_S_FFT), .FAST(FAST), .TYPE(TYPE), .COMPENS_FP(COMPENS_FP))
-//            _multComplexE
-//                (
-//                .clk(clk),
-//                .en(enMult),
-//                .in_data_i(multData_i),
-//                .in_data_q(multData_q),
-//                .fi_deg(phi),
-//                .out_data_minus_i(res_m_phi_i),
-//                .out_data_minus_q(res_m_phi_q),
-//                .out_data_plus_i(res_p_phi_i),
-//                .out_data_plus_q(res_p_phi_q),
-//                .outValid(dataComplete)
-//                );
-            
-//            reg [SIZE_OUT_DATA_S_FFT-1:0] data_summ_chet_i = 0;
-//            reg [SIZE_OUT_DATA_S_FFT-1:0] data_summ_chet_q = 0;
-            
-//            wire [SIZE_OUT_DATA-1:0] w_data_summ_chet_i;
-//            wire [SIZE_OUT_DATA-1:0] w_data_summ_chet_q;
-            
-//            if((COMPENS_FP == "add") && (SIZE_OUT_DATA > SIZE_OUT_DATA_S_FFT))//если разная разрядность то должен учитывать знак
-//            begin
-//                assign w_data_summ_chet_i[SIZE_OUT_DATA-1:1] = data_summ_chet_i[SIZE_OUT_DATA_S_FFT-1:0];
-//                assign w_data_summ_chet_q[SIZE_OUT_DATA-1:1] = data_summ_chet_q[SIZE_OUT_DATA_S_FFT-1:0];
-                
-//                assign w_data_summ_chet_i[0] = 0;
-//                assign w_data_summ_chet_q[0] = 0;  
-//            end
-//            else
-//            begin
-//                assign w_data_summ_chet_i = data_summ_chet_i;
-//                assign w_data_summ_chet_q = data_summ_chet_q;
-//            end
-                
-//            summComplex #(.DATA_FFT_SIZE(SIZE_OUT_DATA)) 
-//            _summ0__NFFT_2(
-//                .clk(clk),
-//                .en(/*state == stateSummFFT*/1'b1),
-//                .data_in0_i(w_data_summ_chet_i),
-//                .data_in0_q(w_data_summ_chet_q),
-//                .data_in1_i(res_m_phi_i),
-//                .data_in1_q(res_m_phi_q),
-//                .data_out0_i(out_summ_0__NFFT_2_i),
-//                .data_out0_q(out_summ_0__NFFT_2_q)
-//            );
-//            summComplex #(.DATA_FFT_SIZE(SIZE_OUT_DATA)) 
-//            _summNFFT_2__NFFT(
-//                .clk(clk),
-//                .en(/*state == stateSummFFT*/1'b1),
-//                .data_in0_i(w_data_summ_chet_i),
-//                .data_in0_q(w_data_summ_chet_q),
-//                .data_in1_i(res_p_phi_i),
-//                .data_in1_q(res_p_phi_q),
-//                .data_out0_i(out_summ_NFFT_2__NFFT_i),
-//                .data_out0_q(out_summ_NFFT_2__NFFT_q)
-//            );
-            
-
-            
-//            reg beginReadSummData = 1'b0;
-//            reg flagWayt = 1'b1;//flag ожидать пока начнеться умножения
-            
-//            reg old_flag_complete_chet = 1'b0;
-//            reg old_flag_complete_Nchet = 1'b0;
-            
-                
-//            always @(posedge clk)//summ FFT
-//            begin : summFFT
-                
-//                if(reset)
-//                begin
-//                    resiveFromChet <= 1'b1;
-//                    resiveFromNChet <= 1'b1;
-//                    enMult <= 1'b0;
-//                    counterMultData2 <= 0;
-//                end
-//                else
-//                begin
-//                    if(flag_complete_chet | old_flag_complete_chet)
-//                    begin
-//                        if(resiveFromChet) 
-//                        begin 
-//                            if(flag_complete_chet)   old_flag_complete_chet <= 1'b1;
-//                        end
-//                        else
-//                        begin
-//                            if({dataComplete, enMult, flagWayt, flag_complete_chet} == 4'b1000)
-//                            begin
-//                                if(counterMultData2 == (NFFT/2 - 1)) old_flag_complete_chet <= 0;
-//                            end
-//                        end
-                        
-                        
-//                        if(resiveFromChet) data_summ_chet_i <= data_from_secondFFT_chet_i;
-//                        if(resiveFromChet) data_summ_chet_q <= data_from_secondFFT_chet_q;
-                        
-//                        if(resiveFromChet) flagWayt <= 1'b1;
-                        
-//                        if(resiveFromChet) resiveFromChet <= 1'b0;
-                        
-////                        if(resiveFromChet) 
-////                        begin
-////                            if(delay_resiveFromChet) resiveFromChet <= 1'b0;
-////                            else if(delay_flag_complete_chet) resiveFromChet <= 1'b0;
-////                        end
-//                        else
-//                        begin
-//                            if(flagWayt)    flagWayt <= /*dataComplete*//*0*/resiveFromNChet;//сначало жду пока опуститься флаг что умножения началось
-//                            else if({dataComplete, enMult} == 2'b10)
-//                            begin
-//                                resiveFromChet <= 1'b1;
-//                            end
-//                        end
-//                    end
-                    
-//                    if(flag_complete_Nchet | old_flag_complete_Nchet)
-//                    begin
-                    
-//                        if(resiveFromNChet) 
-//                        begin 
-//                            if(flag_complete_Nchet)   old_flag_complete_Nchet <= 1'b1;
-//                        end
-//                        else
-//                        begin
-//                            if({dataComplete, enMult, flag_complete_Nchet} == 3'b100)
-//                            begin
-//                                if(counterMultData2 == (NFFT/2 - 1)) old_flag_complete_Nchet <= 0;
-//                            end
-//                        end
-////                        if(flag_complete_Nchet)                 old_flag_complete_Nchet <= 1'b1;
-////                        else if(counterMultData2 >= (NFFT/2))                 old_flag_complete_Nchet <= 1'b0;
-                        
-//                        if(resiveFromNChet) multData_i <= data_from_secondFFT_Nchet_i;
-//                        if(resiveFromNChet) multData_q <= data_from_secondFFT_Nchet_q;
-                        
-//                        if(resiveFromNChet) enMult <= 1'b1;
-                        
-//                        if(resiveFromNChet) if(mutDone)    counterMultData2 <= counterMultData2 - NFFT/2;
-                        
-//                        if(resiveFromNChet) resiveFromNChet <= 1'b0;
-//                        else
-//                        begin
-//                            enMult <= 1'b0;
-//                            if({dataComplete, enMult} == 2'b10)
-//                            begin
-//                                resiveFromNChet <= 1'b1;
-//                                if(mutDone)     counterMultData2 <= counterMultData2 - NFFT/2 + 1;
-//                                else            counterMultData2 <= counterMultData2 + 1;
-//                                phi <= phi + 1;
-//                            end
-//                            else if(mutDone)    counterMultData2 <= counterMultData2 - NFFT/2;//TODO возможно обнулить
-//                        end
-//                    end
-//                    else if(mutDone)    counterMultData2 <= counterMultData2 - NFFT/2;//TODO возможно обнулить
-//                end
-            
-//            end
 
             interconnect_two_sFFT_to_mFFT #(   .SIZE_BUFFER(SIZE_BUFFER),/*log2(NFFT)*/
                                                .SIZE_OUT_DATA_S_FFT(SIZE_OUT_DATA_S_FFT),
@@ -833,12 +682,30 @@ module myFFT
                 .out_summ_NFFT_2__NFFT_i(out_summ_NFFT_2__NFFT_i),
                 .out_summ_NFFT_2__NFFT_q(out_summ_NFFT_2__NFFT_q),
                 
-                .counterMultData2(counterMultData2)
+                .counterMultData2(counterMultData2),
+                
+                .d_out_summ_0__NFFT_2_i(d_out_summ_0__NFFT_2_i),
+                .d_out_summ_0__NFFT_2_q(d_out_summ_0__NFFT_2_q),
+                .d_out_summ_NFFT_2__NFFT_i(d_out_summ_NFFT_2__NFFT_i),
+                .d_out_summ_NFFT_2__NFFT_q(d_out_summ_NFFT_2__NFFT_q),
+                .d_dataComplete(d_dataComplete)
             );
             
-            always @(posedge clk)//summ FFT
+            assign d__counterMultData[SIZE_BUFFER-1:0] = counterMultData;
+            assign d__counterMultData[SIZE_BUFFER] = 0;
+            
+            always @(posedge clk)//from summ to bufer FFT data
             begin : bufferingSummFFT
                 if(mutDone | reset)
+                begin
+                    mutDone <= 1'b0;
+                    counterMultData <= 0;
+                    _data_summ_out_mas_i_r_writeEn_c <= 1'b0; 
+                    _data_summ_out_mas_i_r_writeEn_Nc <= 1'b0; 
+                    _data_summ_out_mas_q_r_writeEn_c <= 1'b0; 
+                    _data_summ_out_mas_q_r_writeEn_Nc <= 1'b0;
+                end
+                else if(d_dataComplete == 0)
                 begin
                     mutDone <= 1'b0;
                     counterMultData <= 0;
@@ -853,6 +720,8 @@ module myFFT
                     begin
 //                        phi <= phi + 1;
                         counterMultData <= counterMultData + 1;
+                        if(counterMultData < NFFT/2)
+                        begin
     //                            data_summ_out_mas_i_r[counterMultData2] <= out_summ_0__NFFT_2_i;
                         _data_summ_out_mas_i_r_addr_c <= counterMultData[SIZE_BUFFER-2:0];
                         _data_summ_out_mas_i_r_writeData_c <= out_summ_0__NFFT_2_i;
@@ -872,6 +741,7 @@ module myFFT
                         _data_summ_out_mas_q_r_addr_Nc <= counterMultData[SIZE_BUFFER-2:0];
                         _data_summ_out_mas_q_r_writeData_Nc <= out_summ_NFFT_2__NFFT_q;
                         _data_summ_out_mas_q_r_writeEn_Nc <= 1'b1;
+                        end
                     end
                     else
                     begin
@@ -881,9 +751,10 @@ module myFFT
                         _data_summ_out_mas_q_r_writeEn_Nc <= 1'b0;
                     end
                     
-                    
-                    if(counterMultData == NFFT/2)  mutDone <= 1'b1; 
+
                 end
+                
+                if(counterMultData2 == NFFT/2)  mutDone <= 1'b1; 
             end
             /*****************************END SLOW FFT*****************************/
         
