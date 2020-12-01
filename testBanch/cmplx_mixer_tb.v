@@ -71,7 +71,7 @@ cmplx_mixer
   .pMUL_W(0) ,
   .pCONJ(0) ,
   .pUSE_DSP_ADD(1) , // use altera dsp internal adder or not (differ registers)
-  .pUSE_ROUND(0)
+  .pUSE_ROUND(1)
 )
 cmplx_mult(
   .iclk(clk)    ,

@@ -25,7 +25,8 @@ module interconnect_two_sFFT_to_mFFT #(parameter SIZE_BUFFER = 1,/*log2(NFFT)*/
                                        parameter SIZE_OUT_DATA = 16,
                                        parameter TYPE = "forvard",/*forvard invers*/
                                        parameter COMPENS_FP = "false", /*false true or add razrad*/
-                                       parameter FAST = "slow"/*slow fast ultrafast slow mult x1 fast mult x2 ultrafast mult x4*/)
+                                       parameter FAST = "slow",/*slow fast ultrafast slow mult x1 fast mult x2 ultrafast mult x4*/
+                                       parameter USE_ROUND = 1/*0 or 1*/)
     (
         clk,
         reset,
@@ -106,7 +107,7 @@ module interconnect_two_sFFT_to_mFFT #(parameter SIZE_BUFFER = 1,/*log2(NFFT)*/
     wire [SIZE_OUT_DATA-1:0] res_p_phi_q;
     wire dataComplete;
     
-    multComplexE #(.SIZE_DATA_FI(SIZE_BUFFER)/*LOG2(NFFT)*/, .DATA_FFT_SIZE(SIZE_OUT_DATA_S_FFT), .FAST(FAST), .TYPE(TYPE), .COMPENS_FP(COMPENS_FP))
+    multComplexE #(.SIZE_DATA_FI(SIZE_BUFFER)/*LOG2(NFFT)*/, .DATA_FFT_SIZE(SIZE_OUT_DATA_S_FFT), .FAST(FAST), .TYPE(TYPE), .COMPENS_FP(COMPENS_FP), .USE_ROUND(USE_ROUND))
     _multComplexE
         (
         .clk(clk),

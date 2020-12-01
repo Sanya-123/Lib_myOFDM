@@ -40,7 +40,8 @@ module myFFT
       parameter FAST = "slow",/*slow fast ultrafast slow mult x1 fast mult x2 ultrafast mult x4*/
       parameter TYPE = "forvard",/*forvard invers*/
       parameter COMPENS_FP = "false", /*false true or add razrad*/
-      parameter MIN_FFT_x4 = 1
+      parameter MIN_FFT_x4 = 1,
+      parameter USE_ROUND = 1/*0 or 1*/
     )
     (
     clk,
@@ -535,7 +536,7 @@ module myFFT
         end
         //recursi
         //0 2 4...
-        myFFT #(.SIZE_BUFFER(SIZE_BUFFER-1),.DATA_FFT_SIZE(DATA_FFT_SIZE), .FAST(FAST), .TYPE(TYPE), .COMPENS_FP(COMPENS_FP), .MIN_FFT_x4(MIN_FFT_x4))
+        myFFT #(.SIZE_BUFFER(SIZE_BUFFER-1),.DATA_FFT_SIZE(DATA_FFT_SIZE), .FAST(FAST), .TYPE(TYPE), .COMPENS_FP(COMPENS_FP), .MIN_FFT_x4(MIN_FFT_x4), .USE_ROUND(USE_ROUND))
         dataChetn(
             .clk(clk),
             .reset(reset),
@@ -552,7 +553,7 @@ module myFFT
             .flag_wayt_data(flag_wayt_data_chet)/*flag can recive daat data*/
         );
         //1 3 5...
-        myFFT #(.SIZE_BUFFER(SIZE_BUFFER-1),.DATA_FFT_SIZE(DATA_FFT_SIZE), .FAST(FAST), .TYPE(TYPE), .COMPENS_FP(COMPENS_FP), .MIN_FFT_x4(MIN_FFT_x4))
+        myFFT #(.SIZE_BUFFER(SIZE_BUFFER-1),.DATA_FFT_SIZE(DATA_FFT_SIZE), .FAST(FAST), .TYPE(TYPE), .COMPENS_FP(COMPENS_FP), .MIN_FFT_x4(MIN_FFT_x4), .USE_ROUND(USE_ROUND))
         dataNChetn(
             .clk(clk),
             .reset(reset),
@@ -659,7 +660,8 @@ module myFFT
                                                .SIZE_OUT_DATA(SIZE_OUT_DATA),
                                                .TYPE(TYPE),/*forvard invers*/
                                                .COMPENS_FP(COMPENS_FP), /*false true or add razrad*/
-                                               .FAST(FAST)/*slow fast ultrafast slow mult x1 fast mult x2 ultrafast mult x4*/)
+                                               .FAST(FAST),/*slow fast ultrafast slow mult x1 fast mult x2 ultrafast mult x4*/
+                                               .USE_ROUND(USE_ROUND)/*0 or 1*/)
             _interconnect_two_sFFT_to_mFFT(
                 .clk(clk),
                 .reset(reset),

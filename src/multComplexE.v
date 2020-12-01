@@ -23,7 +23,8 @@ module multComplexE #(parameter SIZE_DATA_FI = 2/*LOG2(NFFT)*/,
                       parameter DATA_FFT_SIZE = 16,
                       parameter FAST = "slow",/*slow fast ultrafast slow mult x1 fast mult x2 ultrafast mult x4*/
                       parameter TYPE = "forvard",/*forvard invers*/
-                      parameter COMPENS_FP = "false" /*false true or add razrad*/)(
+                      parameter COMPENS_FP = "false", /*false true or add razrad*/
+                      parameter USE_ROUND = 1/*0 or 1*/)(
     clk,
     en,
     in_data_i,
@@ -35,6 +36,8 @@ module multComplexE #(parameter SIZE_DATA_FI = 2/*LOG2(NFFT)*/,
     out_data_plus_q,
     outValid
     );
+    
+    localparam _USE_ROUND = USE_ROUND==0 ? 0 : 1;
     
     //есть 2 возможных способа увеличенияточности
     //1 увеличивать по 1 биту кажду раз
@@ -92,7 +95,7 @@ module multComplexE #(parameter SIZE_DATA_FI = 2/*LOG2(NFFT)*/,
       .pMUL_W(0) ,
       .pCONJ(0) ,
       .pUSE_DSP_ADD(1) , // use altera dsp internal adder or not (differ registers)
-      .pUSE_ROUND(0)
+      .pUSE_ROUND(_USE_ROUND)
     )
     cmplx_mult(
       .iclk(clk)    ,
@@ -139,10 +142,10 @@ module multComplexE #(parameter SIZE_DATA_FI = 2/*LOG2(NFFT)*/,
     always @(posedge clk)
     begin
         
-        if(mult | en)   begin if(timer_4clock < 3) timer_4clock <= timer_4clock + 1;end
+        if(mult | en)   begin if(timer_4clock < (3 + _USE_ROUND)) timer_4clock <= timer_4clock + 1;end
         else            timer_4clock <= 0;
         
-        if(timer_4clock == 3)       outValid <= 1'b1;
+        if(timer_4clock == (3 + _USE_ROUND))       outValid <= 1'b1;
         else /*if(en)*/             outValid <= 1'b0;
         
         if(en)
@@ -163,9 +166,9 @@ module multComplexE #(parameter SIZE_DATA_FI = 2/*LOG2(NFFT)*/,
             
             
             if(!mult) mult <= 1'b1;//begin mult(on second clk mult will be done)
-            else if((timer_4clock == 3) & (en == 1'b0)) mult <= 1'b0;
+            else if((timer_4clock == (3 + _USE_ROUND)) & (en == 1'b0)) mult <= 1'b0;
         end
-        else if((timer_4clock == 3) & (en == 1'b0)) mult <= 1'b0;
+        else if((timer_4clock == (3 + _USE_ROUND)) & (en == 1'b0)) mult <= 1'b0;
     end
 
     initial

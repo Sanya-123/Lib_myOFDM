@@ -109,7 +109,7 @@ end
 
 //        #1740   
      
-        #480
+        #530
         vakidData = 1'b1;
         for(i = 0; i < NFFT; i = i + 1)
         begin
@@ -118,7 +118,7 @@ end
             #10;
         end
         vakidData = 1'b0;
-        #470;
+        #520;
         
 //        #1740;
         
@@ -243,7 +243,7 @@ wire [SIZE_BUFFER:0] _counterMultData;
 
 myFFT
 #(.SIZE_BUFFER(SIZE_BUFFER), .DATA_FFT_SIZE(SIZE_DATA), .TYPE("forvard")/*forvard invers*/, .FAST("ultrafast")/*slow fast ultrafast*/, 
-  .COMPENS_FP(COMPENS_PF)/*false true or add razrad*/, .MIN_FFT_x4(1))
+  .COMPENS_FP(COMPENS_PF)/*false true or add razrad*/, .MIN_FFT_x4(1), .USE_ROUND(1))
 _myFFT
 (
     .clk(clk),
