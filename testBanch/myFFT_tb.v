@@ -84,7 +84,7 @@ end
 //        #400;
         
 //        #40
-//        #150
+//        #300
 //        vakidData = 1'b1;
 //        for(i = NFFT; i < NFFT*2; i = i + 1)
 //        begin
@@ -109,7 +109,7 @@ end
 
 //        #1740   
      
-        #1450
+        #480
         vakidData = 1'b1;
         for(i = 0; i < NFFT; i = i + 1)
         begin
@@ -118,7 +118,7 @@ end
             #10;
         end
         vakidData = 1'b0;
-        #1440;
+        #470;
         
 //        #1740;
         

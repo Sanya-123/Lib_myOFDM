@@ -597,7 +597,7 @@ module myFFT
         reg completeDoneNChet = 1'b0;
         
 //        wire stateToComplete = mutDone;//флаг перехода в состояние отправки данных
-        wire stateToComplete = (counterMultData2 == (NFFT/2 - NFFT/12)) | mutDone;//флаг перехода в состояние отправки данных
+        wire stateToComplete = (counterMultData/*2*/ == (/*NFFT/2 - NFFT/4*/1)) | mutDone;//флаг перехода в состояние отправки данных
         //данные можно уже выкидывать когда досчитываються последнии 20%
         //т.е. при FFT 256 можно выкидывать данные когда посчиталось ~100 
         

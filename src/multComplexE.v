@@ -34,10 +34,6 @@ module multComplexE #(parameter SIZE_DATA_FI = 2/*LOG2(NFFT)*/,
     out_data_plus_i,
     out_data_plus_q,
     outValid
-    /*debug flasg*/
-//    minusReady,
-//    plusReady,
-//    module_en
     );
     
     //есть 2 возможных способа увеличенияточности
@@ -74,14 +70,19 @@ module multComplexE #(parameter SIZE_DATA_FI = 2/*LOG2(NFFT)*/,
     
     reg [16:0] in_cos = 0;
     reg [16:0] in_sin = 0;
-    
-//    wire [31:0] outData_i;
-//    wire [31:0] outData_q;
 
     reg [DATA_FFT_SIZE-1:0] in_mult_data_i;
     reg [DATA_FFT_SIZE-1:0] in_mult_data_q;
     
     wire multComplexComplete;
+   
+    reg [16:0] d1_in_cos;
+    reg [16:0] d1_in_sin;
+    
+    reg [DATA_FFT_SIZE-1:0] d1_in_mult_data_i;
+    reg [DATA_FFT_SIZE-1:0] d1_in_mult_data_q;
+    
+    reg d1_mult;
 
     cmplx_mixer
     #(
@@ -101,9 +102,13 @@ module multComplexE #(parameter SIZE_DATA_FI = 2/*LOG2(NFFT)*/,
       .ival(mult)    ,
       .idat_re(/*in_data_i*/in_mult_data_i) ,
       .idat_im(/*in_data_q*/in_mult_data_q) ,
+//      .idat_re(d1_in_mult_data_i) ,
+//      .idat_im(d1_in_mult_data_q) ,
       //
       .icos(in_cos)    ,
       .isin(in_sin)    ,
+//      .icos(d1_in_cos)    ,
+//      .isin(d1_in_sin)    ,
       //
       .oval(multComplexComplete),
       .odat_re(out_data_minus_i) ,
@@ -121,34 +126,15 @@ module multComplexE #(parameter SIZE_DATA_FI = 2/*LOG2(NFFT)*/,
     reg [3:0] timer_4clock = 0;
     
     
-//    always @(posedge clk)
-//    begin
-        
-//        if(mult)        timer_4clock <= timer_4clock + 1;
-//        else if(en)     timer_4clock <= 1;
-//        else            timer_4clock <= 0;
-        
-//        if(timer_4clock == 3)   outValid <= 1'b1;
-//        else if(en)             outValid <= 1'b0;
-        
-//        if(en)
-//        begin
-//            if(!mult)   in_cos = cos[fi_deg[SIZE_DATA_FI-2:0]];
-//            if(TYPE == "forvard")
-//            begin
-//            if(!mult)   in_sin = sin[fi_deg[SIZE_DATA_FI-2:0]];
-//            end
-//            else if(TYPE == "invers")
-//            begin
-//            if(!mult)   in_sin = -sin[fi_deg[SIZE_DATA_FI-2:0]];
-//            end
-            
-            
-//            if(!mult) mult <= 1'b1;//begin mult(on second clk mult will be done)
-//            else if(timer_4clock == 3) mult <= 1'b0;
-//        end
-//        else if(timer_4clock == 3) mult <= 1'b0;
-//    end
+    always @(posedge clk)
+    begin
+        d1_mult <= mult;
+        d1_in_cos <= in_cos;
+        d1_in_sin <= in_sin;
+        d1_in_mult_data_i <= in_mult_data_i;
+        d1_in_mult_data_q <= in_mult_data_q;
+    end
+    
 
     always @(posedge clk)
     begin
@@ -156,7 +142,7 @@ module multComplexE #(parameter SIZE_DATA_FI = 2/*LOG2(NFFT)*/,
         if(mult | en)   begin if(timer_4clock < 3) timer_4clock <= timer_4clock + 1;end
         else            timer_4clock <= 0;
         
-        if(timer_4clock == 3)   outValid <= 1'b1;
+        if(timer_4clock == 3)       outValid <= 1'b1;
         else /*if(en)*/             outValid <= 1'b0;
         
         if(en)
