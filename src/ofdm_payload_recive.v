@@ -34,9 +34,7 @@ module ofdm_payload_recive #(parameter DATA_SIZE = 16)(
     out_done,
     out_data,
     counter_data,
-    wayt_recive_data,
-    counter_data_d,
-    debug_mask
+    wayt_recive_data
     );
     
     input clk;
@@ -52,8 +50,6 @@ module ofdm_payload_recive #(parameter DATA_SIZE = 16)(
     
     input wayt_recive_data;//flag от том что можно отправлять
     
-    output [15:0] counter_data_d;
-    output debug_mask;
     
     
     localparam N_DATA = 192;//количество гармоник с информццией
@@ -128,7 +124,8 @@ localparam DATA_SUBCARRIER_MASK =
     wire [8*8-1:0] data_from_demodulations_QPSK;
     wire [8*8-1:0] data_from_demodulations_QAM16;
     wire [8*8-1:0] data_from_demodulations_QAM64;
-    wire [8*8-1:0] data_from_demodulations_QAM256;     
+    wire [8*8-1:0] data_from_demodulations_QAM256;    
+
     
     localparam modulationBPSK = 3'd0;
     localparam modulationQPSK = 3'd1;
@@ -143,12 +140,6 @@ localparam DATA_SUBCARRIER_MASK =
     
     reg [3:0] counter_simbol_reg = 0;
     reg [15:0] counter_symbols = 0;
-    
-    assign counter_data_d[7:0] = /*data_from_demodulations[7:0]*/counter_symbols[7:0];
-    assign counter_data_d[11:8] = counter_simbol_reg[3:0];
-    assign counter_data_d[15:12] = 0;
-    
-    assign debug_mask = DATA_SUBCARRIER_MASK[counter_symbols];
     
     
     always @(posedge clk)
@@ -208,7 +199,7 @@ localparam DATA_SUBCARRIER_MASK =
     
     localparam N_SYMBOLS_FROM_MODYLATIONS = 24;
     
-    reg [15:0] counter_symbols_QAM16 = 0;
+    reg [15:0] counter_symbols_QAM64 = 0;
     reg [47:0] QAM_64_TMP = 0;
     
     
@@ -260,23 +251,23 @@ localparam DATA_SUBCARRIER_MASK =
                 begin//NODE это при OBinMM==8
                     counte_rx_bytes <= counte_rx_bytes + 1;
                     case(counte_rx_bytes[1:0])
-                    0:rx_bytes[counter_symbols_QAM16][47:0 ] <= data_from_demodulations_QAM64[47:0];
+                    0:rx_bytes[counter_symbols_QAM64][47:0 ] <= data_from_demodulations_QAM64[47:0];
                     1:
                     begin 
-                        rx_bytes[counter_symbols_QAM16][63:48] <= data_from_demodulations_QAM64[15:0];   
+                        rx_bytes[counter_symbols_QAM64][63:48] <= data_from_demodulations_QAM64[15:0];   
                         QAM_64_TMP [31:0] <= data_from_demodulations_QAM64[47:16];
-                        counter_symbols_QAM16 <= counter_symbols_QAM16 + 1;
+                        counter_symbols_QAM64 <= counter_symbols_QAM64 + 1;
                     end
                     2:
                     begin 
-                        rx_bytes[counter_symbols_QAM16][63:0] <= {data_from_demodulations_QAM64[31:0],QAM_64_TMP [31:0] };
+                        rx_bytes[counter_symbols_QAM64][63:0] <= {data_from_demodulations_QAM64[31:0],QAM_64_TMP [31:0] };
                         QAM_64_TMP [47:32] <= data_from_demodulations_QAM64[47:32];
-                        counter_symbols_QAM16 <= counter_symbols_QAM16 + 1;
+                        counter_symbols_QAM64 <= counter_symbols_QAM64 + 1;
                     end
                     3:
                     begin 
-                        rx_bytes[counter_symbols_QAM16][63:0] <= {data_from_demodulations_QAM64[47:0], counter_symbols_QAM16[47:32] };
-                        counter_symbols_QAM16 <= counter_symbols_QAM16 + 1;
+                        rx_bytes[counter_symbols_QAM64][63:0] <= {data_from_demodulations_QAM64[47:0], QAM_64_TMP[47:32] };
+                        counter_symbols_QAM64 <= counter_symbols_QAM64 + 1;
                     end
                     endcase
                 end
@@ -292,7 +283,7 @@ localparam DATA_SUBCARRIER_MASK =
             begin
                 if(out_done) counte_rx_bytes <= 1'b0;
                 
-                if(out_done) counter_symbols_QAM16 <= 1'b0;
+                if(out_done) counter_symbols_QAM64 <= 1'b0;
             end
             
         end
