@@ -29,6 +29,7 @@ module ofdm_payload_gen #(parameter DATA_SIZE = 16)(
     in_data_en,
     in_data,
     modulation,
+    flag_ready_recive,
     out_done,
     out_data_i,
     out_data_q,
@@ -36,11 +37,20 @@ module ofdm_payload_gen #(parameter DATA_SIZE = 16)(
     wayt_recive_data
     );
     
+    /* modulation   | byts input
+     * BPSK         |   24
+     * QPSK         |   48
+     * QAM16        |   96
+     * QAM64        |   144
+     * QAM256       |   192
+    */
+    
     input clk;
     input reset;
     input in_data_en;
     input [7:0] in_data;
     input [2:0] modulation;
+    output flag_ready_recive;
     output reg out_done = 1'b0;
     output reg [DATA_SIZE-1:0] out_data_i;
     output reg [DATA_SIZE-1:0] out_data_q;
@@ -145,11 +155,11 @@ localparam DATA_SUBCARRIER_MASK =
     
     reg [8*8-1:0] dataForModulations; 
     
-    localparam modulationBPSK = 3'd0;
-    localparam modulationQPSK = 3'd1;
-    localparam modulationQAM16 = 3'd2;
-    localparam modulationQAM64 = 3'd3;
-    localparam modulationQAM256 = 3'd4;
+    localparam modulationBPSK = `BPSK_MOD;
+    localparam modulationQPSK = `QPSK_MOD;
+    localparam modulationQAM16 = `QAM16_MOD;
+    localparam modulationQAM64 = `QAM64_MOD;
+    localparam modulationQAM256 = `QAM256_MOD;
     
     
     reg flag_read_on_next_tact = 1'b0;
@@ -169,11 +179,21 @@ localparam DATA_SUBCARRIER_MASK =
     wire [DATA_SIZE-1:0] QAM256_wire_i [7:0];
     wire [DATA_SIZE-1:0] QAM256_wire_q [7:0];
     
+    reg [2:0] modulation_use;
+    
+    assign flag_ready_recive = counter_data_mod < N_DATA & (out_done == 1'b0);
+//    always @(posedge clk)
+//    begin : flag_ready_recibe
+//        if(reset)   flag_ready_recive <= 1'b0;
+//        else        flag_ready_recive <= counter_data_mod < N_DATA;
+        
+//    end
+    
     always @(posedge clk)
     begin : DEMULTIPLEX_DATA
-        if(reset)   counter_data_mod <= 8'b0;
-        if(reset)   counter_data <= 8'b0;
-        if(reset)   counter_cobyBytes <= 8'b0;
+        if(reset)   counter_data_mod <= 0;
+        if(reset)   counter_data <= 0;
+        if(reset)   counter_cobyBytes <= 0;
         else
         begin
 //            if(in_data_en)  counter_cobyBytes <= counter_cobyBytes + 1;
@@ -181,8 +201,9 @@ localparam DATA_SUBCARRIER_MASK =
             if(out_done)    counter_data_mod <= 0;//обнуляю таймер когда начинаю отправлять жданные чтобы после отправки он сразу по приему начал считыть
             else if(in_data_en)
             begin
-                if(counter_data_mod < N_DATA)
+                if(counter_data_mod < N_DATA/*flag_ready_recive*/)
                 begin
+                modulation_use <= modulation;
                 case(modulation)
                     modulationBPSK://+
                     begin
@@ -352,7 +373,7 @@ localparam DATA_SUBCARRIER_MASK =
             begin
 //                flag_dataModComplete <= 1'b0;
                 counter_data_mod_read <= counter_data_mod_read + 8;
-                case(modulation)
+                case(/*modulation*/modulation_use)
                     modulationBPSK://+
                     begin
                         symbol_i[counter_data_mod_read + 0] <= BPSK_wire_i[0];

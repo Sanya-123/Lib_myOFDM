@@ -6,14 +6,17 @@
 
 module short_preamble_rom_my
 (
-  addr,
-  dout_i,
-  dout_q  
+      addr,
+      dout_i,
+      dout_q  
 );
 
     input      [3:0]  addr;
     output reg [15:0] dout_i;
     output reg [15:0] dout_q;
+    
+//    reg [15:0] mem_i [255:0];
+//    reg [15:0] mem_q [255:0];
 
   always @ *
     case (addr)

@@ -24,7 +24,8 @@ module multComplexE #(parameter SIZE_DATA_FI = 2/*LOG2(NFFT)*/,
                       parameter FAST = "slow",/*slow fast ultrafast slow mult x1 fast mult x2 ultrafast mult x4*/
                       parameter TYPE = "forvard",/*forvard invers*/
                       parameter COMPENS_FP = "false", /*false true or add razrad*/
-                      parameter USE_ROUND = 1/*0 or 1*/)(
+                      parameter USE_ROUND = 1,/*0 or 1*/
+                      parameter USE_DSP = 1/*0 or 1*/)(
     clk,
     en,
     in_data_i,
@@ -38,6 +39,7 @@ module multComplexE #(parameter SIZE_DATA_FI = 2/*LOG2(NFFT)*/,
     );
     
     localparam _USE_ROUND = USE_ROUND==0 ? 0 : 1;
+    localparam _USE_DSP = USE_DSP == 0 ? 0 : 1;
     
     //есть 2 возможных способа увеличенияточности
     //1 увеличивать по 1 биту кажду раз
@@ -79,13 +81,13 @@ module multComplexE #(parameter SIZE_DATA_FI = 2/*LOG2(NFFT)*/,
     
     wire multComplexComplete;
    
-    reg [16:0] d1_in_cos;
-    reg [16:0] d1_in_sin;
+//    reg [16:0] d1_in_cos;
+//    reg [16:0] d1_in_sin;
     
-    reg [DATA_FFT_SIZE-1:0] d1_in_mult_data_i;
-    reg [DATA_FFT_SIZE-1:0] d1_in_mult_data_q;
+//    reg [DATA_FFT_SIZE-1:0] d1_in_mult_data_i;
+//    reg [DATA_FFT_SIZE-1:0] d1_in_mult_data_q;
     
-    reg d1_mult;
+//    reg d1_mult;
 
     cmplx_mixer
     #(
@@ -94,7 +96,7 @@ module multComplexE #(parameter SIZE_DATA_FI = 2/*LOG2(NFFT)*/,
       .pODAT_W(DATA_FFT_SIZE+2 + (COMPENS_FP=="add"?1:0)) ,
       .pMUL_W(0) ,
       .pCONJ(0) ,
-      .pUSE_DSP_ADD(1) , // use altera dsp internal adder or not (differ registers)
+      .pUSE_DSP_ADD(_USE_DSP) , // use altera dsp internal adder or not (differ registers)
       .pUSE_ROUND(_USE_ROUND)
     )
     cmplx_mult(
@@ -129,14 +131,14 @@ module multComplexE #(parameter SIZE_DATA_FI = 2/*LOG2(NFFT)*/,
     reg [3:0] timer_4clock = 0;
     
     
-    always @(posedge clk)
-    begin
-        d1_mult <= mult;
-        d1_in_cos <= in_cos;
-        d1_in_sin <= in_sin;
-        d1_in_mult_data_i <= in_mult_data_i;
-        d1_in_mult_data_q <= in_mult_data_q;
-    end
+//    always @(posedge clk)
+//    begin
+//        d1_mult <= mult;
+//        d1_in_cos <= in_cos;
+//        d1_in_sin <= in_sin;
+//        d1_in_mult_data_i <= in_mult_data_i;
+//        d1_in_mult_data_q <= in_mult_data_q;
+//    end
     
 
     always @(posedge clk)

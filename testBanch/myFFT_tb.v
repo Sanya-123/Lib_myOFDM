@@ -235,15 +235,15 @@ wire [SIZE_BUFFER:0] _counterMultData;
 //wire _enMult;
 //wire _dataComplete;
 
-    wire [17-1:0] d_out_summ_0__NFFT_2_i;
-    wire [17-1:0] d_out_summ_0__NFFT_2_q;
-    wire [17-1:0] d_out_summ_NFFT_2__NFFT_i;
-    wire [17-1:0] d_out_summ_NFFT_2__NFFT_q;
-    wire d_dataComplete;
+//    wire [17-1:0] d_out_summ_0__NFFT_2_i;
+//    wire [17-1:0] d_out_summ_0__NFFT_2_q;
+//    wire [17-1:0] d_out_summ_NFFT_2__NFFT_i;
+//    wire [17-1:0] d_out_summ_NFFT_2__NFFT_q;
+//    wire d_dataComplete;
 
 myFFT
 #(.SIZE_BUFFER(SIZE_BUFFER), .DATA_FFT_SIZE(SIZE_DATA), .TYPE("forvard")/*forvard invers*/, .FAST("ultrafast")/*slow fast ultrafast*/, 
-  .COMPENS_FP(COMPENS_PF)/*false true or add razrad*/, .MIN_FFT_x4(1), .USE_ROUND(1))
+  .COMPENS_FP(COMPENS_PF)/*false true or add razrad*/, .MIN_FFT_x4(1), .USE_ROUND(1), .USE_DSP(0))
 _myFFT
 (
     .clk(clk),
@@ -296,12 +296,12 @@ _myFFT
 //    .__data_summ_out_mas_i_r_addr_r_Nc(__data_summ_out_mas_i_r_addr_r_Nc),
 //    .__data_summ_out_mas_i_r_writeData_Nc(__data_summ_out_mas_i_r_writeData_Nc),
 //    .__data_summ_out_mas_i_r_readData_Nc(__data_summ_out_mas_i_r_readData_Nc)
-    ,.d_out_summ_0__NFFT_2_i(d_out_summ_0__NFFT_2_i)
-    ,.d_out_summ_0__NFFT_2_q(d_out_summ_0__NFFT_2_q)
-    ,.d_out_summ_NFFT_2__NFFT_i(d_out_summ_NFFT_2__NFFT_i)
-    ,.d_out_summ_NFFT_2__NFFT_q(d_out_summ_NFFT_2__NFFT_q)
-    ,.d_dataComplete(d_dataComplete)
-    ,.d__counterMultData(_counterMultData)
+//    ,.d_out_summ_0__NFFT_2_i(d_out_summ_0__NFFT_2_i)
+//    ,.d_out_summ_0__NFFT_2_q(d_out_summ_0__NFFT_2_q)
+//    ,.d_out_summ_NFFT_2__NFFT_i(d_out_summ_NFFT_2__NFFT_i)
+//    ,.d_out_summ_NFFT_2__NFFT_q(d_out_summ_NFFT_2__NFFT_q)
+//    ,.d_dataComplete(d_dataComplete)
+//    ,.d__counterMultData(_counterMultData)
 );
 
 //myFFT

@@ -54,6 +54,7 @@ begin
     begin
         $fscanf(f, "%d", in_data_mas[i]);
     end
+    $fclose(f);
 end
 
 initial

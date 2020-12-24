@@ -127,11 +127,11 @@ localparam DATA_SUBCARRIER_MASK =
     wire [8*8-1:0] data_from_demodulations_QAM256;    
 
     
-    localparam modulationBPSK = 3'd0;
-    localparam modulationQPSK = 3'd1;
-    localparam modulationQAM16 = 3'd2;
-    localparam modulationQAM64 = 3'd3;
-    localparam modulationQAM256 = 3'd4;
+    localparam modulationBPSK = `BPSK_MOD;
+    localparam modulationQPSK = `QPSK_MOD;
+    localparam modulationQAM16 = `QAM16_MOD;
+    localparam modulationQAM64 = `QAM64_MOD;
+    localparam modulationQAM256 = `QAM256_MOD;
     
     reg flag_read_on_next_tact = 1'b0;
     

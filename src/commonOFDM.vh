@@ -22,4 +22,10 @@
 `define PILOT_P_38_Q     10
 `define PILOT_P_13_Q     10
 
+`define BPSK_MOD         3'd0
+`define QPSK_MOD         3'd1
+`define QAM16_MOD        3'd2
+`define QAM64_MOD        3'd3
+`define QAM256_MOD       3'd4
+
 `endif //__COMMON_OFDM_VH__

@@ -90,7 +90,7 @@ localparam SUBCARRIER_MASK = {SUBCARRIER_MASK_R, SUBCARRIER_MASK_L};
     .reset(1'b0),
     .in_data_en(in_data_en),
     .in_data(in_data),
-    .modulation(3'd4),
+    .modulation(3'd0),
     .out_done(out_done),
     .out_data_i(out_data_i),
     .out_data_q(out_data_q),

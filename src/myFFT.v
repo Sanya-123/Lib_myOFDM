@@ -41,7 +41,8 @@ module myFFT
       parameter TYPE = "forvard",/*forvard invers*/
       parameter COMPENS_FP = "false", /*false true or add razrad*/
       parameter MIN_FFT_x4 = 1,
-      parameter USE_ROUND = 1/*0 or 1*/
+      parameter USE_ROUND = 1,/*0 or 1*/
+      parameter USE_DSP = 1/*0 or 1*/
     )
     (
     clk,
@@ -57,13 +58,6 @@ module myFFT
     stateFFT,
     flag_ready_recive,/*input flags for output data*/
     flag_wayt_data/*flag can recive daat data*/
-    //debug
-    ,d_out_summ_0__NFFT_2_i,
-    d_out_summ_0__NFFT_2_q,
-    d_out_summ_NFFT_2__NFFT_i,
-    d_out_summ_NFFT_2__NFFT_q,
-    d_dataComplete,
-    d__counterMultData
     );
     
     localparam NFFT = 1 << SIZE_BUFFER;
@@ -91,13 +85,6 @@ module myFFT
     
     input flag_ready_recive;
     output /*reg*/ flag_wayt_data;
-    
-    output [SIZE_OUT_DATA-1:0] d_out_summ_0__NFFT_2_i;
-    output [SIZE_OUT_DATA-1:0] d_out_summ_0__NFFT_2_q;
-    output [SIZE_OUT_DATA-1:0] d_out_summ_NFFT_2__NFFT_i;
-    output [SIZE_OUT_DATA-1:0] d_out_summ_NFFT_2__NFFT_q;
-    output d_dataComplete;
-    output [SIZE_BUFFER:0] d__counterMultData;
     
 
     assign clk_o_data = clk;//NOTE возможно потребуеться давать клок только когда данные отправляюьбся
@@ -536,7 +523,8 @@ module myFFT
         end
         //recursi
         //0 2 4...
-        myFFT #(.SIZE_BUFFER(SIZE_BUFFER-1),.DATA_FFT_SIZE(DATA_FFT_SIZE), .FAST(FAST), .TYPE(TYPE), .COMPENS_FP(COMPENS_FP), .MIN_FFT_x4(MIN_FFT_x4), .USE_ROUND(USE_ROUND))
+        myFFT #(.SIZE_BUFFER(SIZE_BUFFER-1),.DATA_FFT_SIZE(DATA_FFT_SIZE), .FAST(FAST), .TYPE(TYPE), 
+                .COMPENS_FP(COMPENS_FP), .MIN_FFT_x4(MIN_FFT_x4), .USE_ROUND(USE_ROUND), .USE_DSP(USE_DSP))
         dataChetn(
             .clk(clk),
             .reset(reset),
@@ -553,7 +541,8 @@ module myFFT
             .flag_wayt_data(flag_wayt_data_chet)/*flag can recive daat data*/
         );
         //1 3 5...
-        myFFT #(.SIZE_BUFFER(SIZE_BUFFER-1),.DATA_FFT_SIZE(DATA_FFT_SIZE), .FAST(FAST), .TYPE(TYPE), .COMPENS_FP(COMPENS_FP), .MIN_FFT_x4(MIN_FFT_x4), .USE_ROUND(USE_ROUND))
+        myFFT #(.SIZE_BUFFER(SIZE_BUFFER-1),.DATA_FFT_SIZE(DATA_FFT_SIZE), .FAST(FAST), .TYPE(TYPE), 
+                .COMPENS_FP(COMPENS_FP), .MIN_FFT_x4(MIN_FFT_x4), .USE_ROUND(USE_ROUND), .USE_DSP(USE_DSP))
         dataNChetn(
             .clk(clk),
             .reset(reset),
@@ -654,6 +643,7 @@ module myFFT
 //            wire [SIZE_OUT_DATA-1:0] d_out_summ_NFFT_2__NFFT_i;
 //            wire [SIZE_OUT_DATA-1:0] d_out_summ_NFFT_2__NFFT_q;
             
+            wire interconnect_dataComplete;
 
             interconnect_two_sFFT_to_mFFT #(   .SIZE_BUFFER(SIZE_BUFFER),/*log2(NFFT)*/
                                                .SIZE_OUT_DATA_S_FFT(SIZE_OUT_DATA_S_FFT),
@@ -661,7 +651,8 @@ module myFFT
                                                .TYPE(TYPE),/*forvard invers*/
                                                .COMPENS_FP(COMPENS_FP), /*false true or add razrad*/
                                                .FAST(FAST),/*slow fast ultrafast slow mult x1 fast mult x2 ultrafast mult x4*/
-                                               .USE_ROUND(USE_ROUND)/*0 or 1*/)
+                                               .USE_ROUND(USE_ROUND),/*0 or 1*/
+                                               .USE_DSP(USE_DSP)/*0 or 1*/)
             _interconnect_two_sFFT_to_mFFT(
                 .clk(clk),
                 .reset(reset),
@@ -685,16 +676,8 @@ module myFFT
                 .out_summ_NFFT_2__NFFT_q(out_summ_NFFT_2__NFFT_q),
                 
                 .counterMultData2(counterMultData2),
-                
-                .d_out_summ_0__NFFT_2_i(d_out_summ_0__NFFT_2_i),
-                .d_out_summ_0__NFFT_2_q(d_out_summ_0__NFFT_2_q),
-                .d_out_summ_NFFT_2__NFFT_i(d_out_summ_NFFT_2__NFFT_i),
-                .d_out_summ_NFFT_2__NFFT_q(d_out_summ_NFFT_2__NFFT_q),
-                .d_dataComplete(d_dataComplete)
+                .dataComplete(interconnect_dataComplete)
             );
-            
-            assign d__counterMultData[SIZE_BUFFER-1:0] = counterMultData;
-            assign d__counterMultData[SIZE_BUFFER] = 0;
             
             always @(posedge clk)//from summ to bufer FFT data
             begin : bufferingSummFFT
@@ -707,7 +690,7 @@ module myFFT
                     _data_summ_out_mas_q_r_writeEn_c <= 1'b0; 
                     _data_summ_out_mas_q_r_writeEn_Nc <= 1'b0;
                 end
-                else if(d_dataComplete == 0)
+                else if(interconnect_dataComplete == 0)
                 begin
                     mutDone <= 1'b0;
                     counterMultData <= 0;

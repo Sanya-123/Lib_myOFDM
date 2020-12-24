@@ -20,7 +20,8 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module memForOFDM #(parameter MAX_SYMBOLS_FFT = 64)(
+module memForOFDM #(parameter MEMORY_SYZE = 16,
+                    parameter DATA_SIZE = 16)(
     clk,
     write_en,
     addres_write,
@@ -33,15 +34,17 @@ module memForOFDM #(parameter MAX_SYMBOLS_FFT = 64)(
     
     input clk;
     input write_en;
-    input [15:0] addres_write;
-    input [15:0] addres_read;
-    input [15:0] write_data_i;
-    input [15:0] write_data_q;
-    output reg [15:0] read_data_i;
-    output reg [15:0] read_data_q;
+    input [MEMORY_SYZE-1:0] addres_write;
+    input [MEMORY_SYZE-1:0] addres_read;
+    input [DATA_SIZE-1:0] write_data_i;
+    input [DATA_SIZE-1:0] write_data_q;
+    output reg [DATA_SIZE-1:0] read_data_i;
+    output reg [DATA_SIZE-1:0] read_data_q;
     
-    reg [15:0] reg_data_i [160+160+64*MAX_SYMBOLS_FFT - 1:0];
-    reg [15:0] reg_data_q [160+160+64*MAX_SYMBOLS_FFT - 1:0];
+    
+    
+    reg [DATA_SIZE-1:0] reg_data_i [2**MEMORY_SYZE - 1:0];
+    reg [DATA_SIZE-1:0] reg_data_q [2**MEMORY_SYZE - 1:0];
     
     always @(posedge clk)
     begin
