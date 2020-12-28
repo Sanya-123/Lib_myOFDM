@@ -66,8 +66,8 @@ module ofdm_find_preamble #(parameter DATA_SIZE = 16,
         begin
             if(en)
             begin
-                shift_reg_i[i+1] <= $signed(shift_reg_i[i]) + (mem_i[254-i] ? $signed(in_data_i) : -$signed(in_data_i));
-                shift_reg_q[i+1] <= $signed(shift_reg_q[i]) + (mem_q[254-i] ? $signed(in_data_q) : -$signed(in_data_q));
+                shift_reg_i[i+1] <= $signed(shift_reg_i[i]) + (mem_i[254-i] ? $signed(in_data_i) : -$signed(in_data_i)) + (mem_q[254-i] ? $signed(in_data_q) : -$signed(in_data_q));
+                shift_reg_q[i+1] <= $signed(shift_reg_q[i]) + (mem_i[254-i] ? $signed(in_data_q) : -$signed(in_data_q)) + (mem_q[254-i] ? -$signed(in_data_i) : $signed(in_data_i));
             end
         end
     end
@@ -76,8 +76,8 @@ module ofdm_find_preamble #(parameter DATA_SIZE = 16,
     begin
         if(en)
         begin
-            shift_reg_i[0] <= mem_i[255] ? $signed(in_data_i) : -$signed(in_data_i);
-            shift_reg_q[0] <= mem_i[255] ? $signed(in_data_i) : -$signed(in_data_i);
+            shift_reg_i[0] <= (mem_i[255] ? $signed(in_data_i) : -$signed(in_data_i)) + (mem_q[255] ? $signed(in_data_q) : -$signed(in_data_q));
+            shift_reg_q[0] <= (mem_i[255] ? $signed(in_data_q) : -$signed(in_data_q)) + (mem_q[255] ? -$signed(in_data_i) : $signed(in_data_i));
         end
     end
     

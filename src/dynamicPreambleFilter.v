@@ -42,10 +42,43 @@ module dynamicPreambleFilter #( parameter DATA_SIZE = 16,
             out_porog <= (porog << 2) < MIN_POROG ? MIN_POROG : (porog << 2); 
     end
     
+//    always @(posedge clk)
+//    begin
+//        if(en)
+//            porog <= ((porog << N_FILTR) - porog + in_data) >> N_FILTR;
+//    end
+    
+    reg [DATA_SIZE-1:0] shift_reg [(1 << N_FILTR)-1:0];
+    
+    
+    always @(posedge clk)
+        porog <= shift_reg[(1 << N_FILTR)-1];
+    
+    genvar i;
+    genvar j;
+    generate
+    
+    for(j = 0; j < (1 << N_FILTR); j = j + 1)
+    begin
+        initial begin
+            shift_reg[j] = MIN_POROG;
+        end
+    end
+    
+    for(i = 1; i < (1 << N_FILTR); i = i + 1)
+    begin
+        always @(posedge clk)
+        begin
+            if(en)  shift_reg[i] <= in_data + shift_reg[i-1];
+        end
+    end
+    
     always @(posedge clk)
     begin
-        if(en)
-            porog <= ((porog << N_FILTR) - porog + in_data) >> N_FILTR;
+        if(en)  shift_reg[0] <= in_data;
     end
+
+    endgenerate
+
     
 endmodule
