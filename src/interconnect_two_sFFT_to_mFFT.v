@@ -27,7 +27,8 @@ module interconnect_two_sFFT_to_mFFT #(parameter SIZE_BUFFER = 1,/*log2(NFFT)*/
                                        parameter COMPENS_FP = "false", /*false true or add razrad*/
                                        parameter FAST = "slow",/*slow fast ultrafast slow mult x1 fast mult x2 ultrafast mult x4*/
                                        parameter USE_ROUND = 1,/*0 or 1*/
-                                       parameter USE_DSP = 1/*0 or 1*/)
+                                       parameter USE_DSP = 1,/*0 or 1*/
+                                       parameter PARAPEL_THIS_FFT = 1)
     (
         clk,
         reset,

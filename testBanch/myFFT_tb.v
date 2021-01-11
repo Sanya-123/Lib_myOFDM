@@ -26,8 +26,8 @@ parameter SIZE_BUFFER = 8;
 parameter NFFT = 2**SIZE_BUFFER;
 
 parameter SIZE_DATA  =  16;
-parameter SIZE_DATA_OUT  =  16 + SIZE_BUFFER - 2;
-parameter COMPENS_PF = "add";
+parameter SIZE_DATA_OUT  =  16/* + SIZE_BUFFER - 2*/;
+parameter COMPENS_PF = "false";
 
 reg clk = 0;
 reg [SIZE_DATA-1:0] data_i = 0;
@@ -84,7 +84,7 @@ end
 //        #400;
         
 //        #40
-//        #300
+//        #400
 //        vakidData = 1'b1;
 //        for(i = NFFT; i < NFFT*2; i = i + 1)
 //        begin
@@ -109,16 +109,16 @@ end
 
 //        #1740   
      
-        #530
-        vakidData = 1'b1;
-        for(i = 0; i < NFFT; i = i + 1)
-        begin
-            data_i = data_i_mas[i];
-            data_q = data_q_mas[i];
-            #10;
-        end
-        vakidData = 1'b0;
-        #520;
+//        #130
+//        vakidData = 1'b1;
+//        for(i = 0; i < NFFT; i = i + 1)
+//        begin
+//            data_i = data_i_mas[i];
+//            data_q = data_q_mas[i];
+//            #10;
+//        end
+//        vakidData = 1'b0;
+//        #520;
         
 //        #1740;
         
@@ -139,7 +139,7 @@ end
 //        vakidData = 1'b0;
 //        #2300;
 
-//        #5600;
+        #780;
     end
     
 //    initial
@@ -235,15 +235,15 @@ wire [SIZE_BUFFER:0] _counterMultData;
 //wire _enMult;
 //wire _dataComplete;
 
-//    wire [17-1:0] d_out_summ_0__NFFT_2_i;
-//    wire [17-1:0] d_out_summ_0__NFFT_2_q;
-//    wire [17-1:0] d_out_summ_NFFT_2__NFFT_i;
-//    wire [17-1:0] d_out_summ_NFFT_2__NFFT_q;
+    wire [SIZE_DATA_OUT-1:0] d_out_summ_0__NFFT_2_i;
+    wire [SIZE_DATA_OUT-1:0] d_out_summ_0__NFFT_2_q;
+    wire [SIZE_DATA_OUT-1:0] d_out_summ_NFFT_2__NFFT_i;
+    wire [SIZE_DATA_OUT-1:0] d_out_summ_NFFT_2__NFFT_q;
 //    wire d_dataComplete;
 
 myFFT
 #(.SIZE_BUFFER(SIZE_BUFFER), .DATA_FFT_SIZE(SIZE_DATA), .TYPE("forvard")/*forvard invers*/, .FAST("ultrafast")/*slow fast ultrafast*/, 
-  .COMPENS_FP(COMPENS_PF)/*false true or add razrad*/, .MIN_FFT_x4(1), .USE_ROUND(1), .USE_DSP(0))
+  .COMPENS_FP(COMPENS_PF)/*false true or add razrad*/, .MIN_FFT_x4(1), .USE_ROUND(1), .USE_DSP(1), .PARAREL_FFT(9'b111100000))
 _myFFT
 (
     .clk(clk),
@@ -259,49 +259,13 @@ _myFFT
     .stateFFT(stateFFT),
     .flag_wayt_data(flag_wayt_data),
     .flag_ready_recive(flag_ready_read)
-//    ._counterMultData(_counterMultData)
-////    ._counterOutData(_counterOutData)
-//    ._out_summ_0__NFFT_2_i(_out_summ_0__NFFT_2_i),
-//    ._out_summ_0__NFFT_2_q(_out_summ_0__NFFT_2_q),
-//    ._out_summ_NFFT_2__NFFT_i(_out_summ_NFFT_2__NFFT_i),
-//    ._out_summ_NFFT_2__NFFT_q(_out_summ_NFFT_2__NFFT_q),
-////    ._counterMultData(_counterMultData)
-//    ._flag_complete_chet(_flag_complete_chet),
-//    ._flag_complete_Nchet(_flag_complete_Nchet),
-//    ._resiveFromChet(_resiveFromChet),
-//    ._resiveFromNChet(_resiveFromNChet),
-//    ._flag_valid_chet(_flag_valid_chet),
-//    ._flag_valid_Nchet(_flag_valid_Nchet),
-//    .stateFFT_chet(stateFFT_chet),
-//    .stateFFT_Nchet(stateFFT_Nchet)
-//    ._counterMultData_chet(_counterMultData_chet),
-//    ._counterMultData_Nchet(_counterMultData_Nchet),
-//    ._enMult(_enMult),
-//    ._dataComplete(_dataComplete)
-//    .stateFFT_chet2(stateFFT_chet2),
-//    .stateFFT_Nchet2(stateFFT_Nchet2),
-//    .stateFFT_NNchet2(stateFFT_NNchet2),
-//    .stateFFT_NNNchet2(stateFFT_NNNchet2),
-//    ._flag_valid_chet2(_flag_valid_chet2),
-//    ._flag_valid_Nchet2(_flag_valid_Nchet2),
-//    ._flag_valid_NNchet2(_flag_valid_NNchet2),
-//    ._flag_valid_NNNchet2(_flag_valid_NNNchet2)
-//    .__data_summ_out_mas_i_r_writeEn_c(__data_summ_out_mas_i_r_writeEn_c),
-//    .__data_summ_out_mas_i_r_addr_c(__data_summ_out_mas_i_r_addr_c),
-//    .__data_summ_out_mas_i_r_addr_r_c(__data_summ_out_mas_i_r_addr_r_c),
-//    .__data_summ_out_mas_i_r_writeData_c(__data_summ_out_mas_i_r_writeData_c),
-//    .__data_summ_out_mas_i_r_readData_c(__data_summ_out_mas_i_r_readData_c),
-//    .__data_summ_out_mas_i_r_writeEn_Nc(__data_summ_out_mas_i_r_writeEn_Nc),
-//    .__data_summ_out_mas_i_r_addr_Nc(__data_summ_out_mas_i_r_addr_Nc),
-//    .__data_summ_out_mas_i_r_addr_r_Nc(__data_summ_out_mas_i_r_addr_r_Nc),
-//    .__data_summ_out_mas_i_r_writeData_Nc(__data_summ_out_mas_i_r_writeData_Nc),
-//    .__data_summ_out_mas_i_r_readData_Nc(__data_summ_out_mas_i_r_readData_Nc)
-//    ,.d_out_summ_0__NFFT_2_i(d_out_summ_0__NFFT_2_i)
-//    ,.d_out_summ_0__NFFT_2_q(d_out_summ_0__NFFT_2_q)
-//    ,.d_out_summ_NFFT_2__NFFT_i(d_out_summ_NFFT_2__NFFT_i)
-//    ,.d_out_summ_NFFT_2__NFFT_q(d_out_summ_NFFT_2__NFFT_q)
-//    ,.d_dataComplete(d_dataComplete)
-//    ,.d__counterMultData(_counterMultData)
+    
+    ,._data_from_secondFFT_chet_i(d_out_summ_0__NFFT_2_i)
+    ,._data_from_secondFFT_chet_q(d_out_summ_0__NFFT_2_q)
+    ,._data_from_secondFFT_Nchet_i(d_out_summ_NFFT_2__NFFT_i)
+    ,._data_from_secondFFT_Nchet_q(d_out_summ_NFFT_2__NFFT_q)
+    ,._flag_complete_chet(_flag_complete_chet)
+    ,._flag_complete_Nchet(_flag_complete_Nchet)
 );
 
 //myFFT

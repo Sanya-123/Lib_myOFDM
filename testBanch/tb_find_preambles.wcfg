@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="tb_ofdm_find_preamble_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="tb_ofdm_find_preamble" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="4354000000fs"></ZoomStartTime>
+      <ZoomEndTime time="5201000001fs"></ZoomEndTime>
+      <Cursor1Time time="4595000000fs"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="254"></NameColumnWidth>
+      <ValueColumnWidth column_width="181"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="32" />
+   <wvobject type="logic" fp_name="/tb_ofdm_find_preamble/clk">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_ofdm_find_preamble/beginTX">
+      <obj_property name="ElementShortName">beginTX</obj_property>
+      <obj_property name="ObjectShortName">beginTX</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_ofdm_find_preamble/valid">
+      <obj_property name="ElementShortName">valid</obj_property>
+      <obj_property name="ObjectShortName">valid</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_ofdm_find_preamble/in_data">
+      <obj_property name="ElementShortName">in_data[7:0]</obj_property>
+      <obj_property name="ObjectShortName">in_data[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_ofdm_find_preamble/flag_ready_read">
+      <obj_property name="ElementShortName">flag_ready_read</obj_property>
+      <obj_property name="ObjectShortName">flag_ready_read</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_ofdm_find_preamble/out_data_i">
+      <obj_property name="ElementShortName">out_data_i[15:0]</obj_property>
+      <obj_property name="ObjectShortName">out_data_i[15:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_ofdm_find_preamble/out_data_q">
+      <obj_property name="ElementShortName">out_data_q[15:0]</obj_property>
+      <obj_property name="ObjectShortName">out_data_q[15:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_ofdm_find_preamble/tx_valid">
+      <obj_property name="ElementShortName">tx_valid</obj_property>
+      <obj_property name="ObjectShortName">tx_valid</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_ofdm_find_preamble/done_transmit">
+      <obj_property name="ElementShortName">done_transmit</obj_property>
+      <obj_property name="ObjectShortName">done_transmit</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_ofdm_find_preamble/o_state_OFDM">
+      <obj_property name="ElementShortName">o_state_OFDM[3:0]</obj_property>
+      <obj_property name="ObjectShortName">o_state_OFDM[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_ofdm_find_preamble/d_FCH_data">
+      <obj_property name="ElementShortName">d_FCH_data[7:0]</obj_property>
+      <obj_property name="ObjectShortName">d_FCH_data[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_ofdm_find_preamble/d_fft_data_i">
+      <obj_property name="ElementShortName">d_fft_data_i[15:0]</obj_property>
+      <obj_property name="ObjectShortName">d_fft_data_i[15:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_ofdm_find_preamble/d_fft_data_q">
+      <obj_property name="ElementShortName">d_fft_data_q[15:0]</obj_property>
+      <obj_property name="ObjectShortName">d_fft_data_q[15:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_ofdm_find_preamble/d_in_fft_data_i">
+      <obj_property name="ElementShortName">d_in_fft_data_i[15:0]</obj_property>
+      <obj_property name="ObjectShortName">d_in_fft_data_i[15:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_ofdm_find_preamble/d_in_fft_data_q">
+      <obj_property name="ElementShortName">d_in_fft_data_q[15:0]</obj_property>
+      <obj_property name="ObjectShortName">d_in_fft_data_q[15:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_ofdm_find_preamble/d_complete_fft">
+      <obj_property name="ElementShortName">d_complete_fft</obj_property>
+      <obj_property name="ObjectShortName">d_complete_fft</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_ofdm_find_preamble/f">
+      <obj_property name="ElementShortName">f[31:0]</obj_property>
+      <obj_property name="ObjectShortName">f[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_ofdm_find_preamble/i">
+      <obj_property name="ElementShortName">i[31:0]</obj_property>
+      <obj_property name="ObjectShortName">i[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_ofdm_find_preamble/f_i">
+      <obj_property name="ElementShortName">f_i[31:0]</obj_property>
+      <obj_property name="ObjectShortName">f_i[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_ofdm_find_preamble/f_q">
+      <obj_property name="ElementShortName">f_q[31:0]</obj_property>
+      <obj_property name="ObjectShortName">f_q[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_ofdm_find_preamble/j">
+      <obj_property name="ElementShortName">j[31:0]</obj_property>
+      <obj_property name="ObjectShortName">j[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_ofdm_find_preamble/out_preamble_i">
+      <obj_property name="ElementShortName">out_preamble_i[23:0]</obj_property>
+      <obj_property name="ObjectShortName">out_preamble_i[23:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      <obj_property name="WaveformStyle">STYLE_ANALOG</obj_property>
+      <obj_property name="CellHeight">100</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_ofdm_find_preamble/out_preamble_q">
+      <obj_property name="ElementShortName">out_preamble_q[23:0]</obj_property>
+      <obj_property name="ObjectShortName">out_preamble_q[23:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      <obj_property name="WaveformStyle">STYLE_ANALOG</obj_property>
+      <obj_property name="CellHeight">100</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_ofdm_find_preamble/abs_preamble">
+      <obj_property name="ElementShortName">abs_preamble[47:0]</obj_property>
+      <obj_property name="ObjectShortName">abs_preamble[47:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      <obj_property name="WaveformStyle">STYLE_ANALOG</obj_property>
+      <obj_property name="CellHeight">100</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_ofdm_find_preamble/findPA">
+      <obj_property name="ElementShortName">findPA</obj_property>
+      <obj_property name="ObjectShortName">findPA</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_ofdm_find_preamble/porogA">
+      <obj_property name="ElementShortName">porogA[47:0]</obj_property>
+      <obj_property name="ObjectShortName">porogA[47:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      <obj_property name="WaveformStyle">STYLE_ANALOG</obj_property>
+      <obj_property name="CellHeight">100</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_ofdm_find_preamble/out_preambleB_i">
+      <obj_property name="ElementShortName">out_preambleB_i[23:0]</obj_property>
+      <obj_property name="ObjectShortName">out_preambleB_i[23:0]</obj_property>
+      <obj_property name="WaveformStyle">STYLE_ANALOG</obj_property>
+      <obj_property name="CellHeight">100</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_ofdm_find_preamble/out_preambleB_q">
+      <obj_property name="ElementShortName">out_preambleB_q[23:0]</obj_property>
+      <obj_property name="ObjectShortName">out_preambleB_q[23:0]</obj_property>
+      <obj_property name="WaveformStyle">STYLE_ANALOG</obj_property>
+      <obj_property name="CellHeight">100</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_ofdm_find_preamble/abs_preambleB">
+      <obj_property name="ElementShortName">abs_preambleB[47:0]</obj_property>
+      <obj_property name="ObjectShortName">abs_preambleB[47:0]</obj_property>
+      <obj_property name="WaveformStyle">STYLE_ANALOG</obj_property>
+      <obj_property name="CellHeight">100</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_ofdm_find_preamble/findPB">
+      <obj_property name="ElementShortName">findPB</obj_property>
+      <obj_property name="ObjectShortName">findPB</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_ofdm_find_preamble/porogB">
+      <obj_property name="ElementShortName">porogB[47:0]</obj_property>
+      <obj_property name="ObjectShortName">porogB[47:0]</obj_property>
+      <obj_property name="WaveformStyle">STYLE_ANALOG</obj_property>
+      <obj_property name="CellHeight">100</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_ofdm_find_preamble/DATA_SIZE">
+      <obj_property name="ElementShortName">DATA_SIZE[31:0]</obj_property>
+      <obj_property name="ObjectShortName">DATA_SIZE[31:0]</obj_property>
+   </wvobject>
+</wave_config>

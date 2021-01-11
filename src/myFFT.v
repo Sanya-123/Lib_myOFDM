@@ -42,22 +42,30 @@ module myFFT
       parameter COMPENS_FP = "false", /*false true or add razrad*/
       parameter MIN_FFT_x4 = 1,
       parameter USE_ROUND = 1,/*0 or 1*/
-      parameter USE_DSP = 1/*0 or 1*/
+      parameter USE_DSP = 1,/*0 or 1*/
+      parameter PARAREL_FFT = 9'b111111111 /*example 8'b 111000000 fft 256,128,64 matht pararel anaouther fft math conv*/
     )
     (
-    clk,
-    reset,
-    valid,
-    clk_i_data,
-    data_in_i,
-    data_in_q,
-    clk_o_data,
-    data_out_i,
-    data_out_q,
-    complete,
-    stateFFT,
-    flag_ready_recive,/*input flags for output data*/
-    flag_wayt_data/*flag can recive daat data*/
+        clk,
+        reset,
+        valid,
+        clk_i_data,
+        data_in_i,
+        data_in_q,
+        clk_o_data,
+        data_out_i,
+        data_out_q,
+        complete,
+        stateFFT,
+        flag_ready_recive,/*input flags for output data*/
+        flag_wayt_data/*flag can recive daat data*/
+        
+        ,_data_from_secondFFT_chet_i
+        ,_data_from_secondFFT_chet_q
+        ,_data_from_secondFFT_Nchet_i
+        ,_data_from_secondFFT_Nchet_q
+        ,_flag_complete_chet
+        ,_flag_complete_Nchet
     );
     
     localparam NFFT = 1 << SIZE_BUFFER;
@@ -66,8 +74,7 @@ module myFFT
     localparam SIZE_OUT_DATA        = COMPENS_FP == "add" ? (DATA_FFT_SIZE + (SIZE_BUFFER > 2 ? SIZE_BUFFER - 2 : 0)) : DATA_FFT_SIZE;//на выходе модуля
     localparam SIZE_OUT_DATA_S_FFT  = COMPENS_FP == "add" ? (DATA_FFT_SIZE + (SIZE_BUFFER > 2 ? SIZE_BUFFER - 3 : 0)) : DATA_FFT_SIZE;//на выходе предыдущего модуля
     
-//    localparam SIZE_OUT_DATA        = DATA_FFT_SIZE;//на выходе модуля
-//    localparam SIZE_OUT_DATA_S_FFT  = DATA_FFT_SIZE;//на выходе предыдущего модуля
+    localparam PARAREL_THIS_FFT = PARAREL_FFT[SIZE_BUFFER];
 
     
     input clk;
@@ -86,6 +93,12 @@ module myFFT
     input flag_ready_recive;
     output /*reg*/ flag_wayt_data;
     
+    output [SIZE_OUT_DATA_S_FFT-1:0] _data_from_secondFFT_chet_i;
+    output [SIZE_OUT_DATA_S_FFT-1:0] _data_from_secondFFT_chet_q;
+    output [SIZE_OUT_DATA_S_FFT-1:0] _data_from_secondFFT_Nchet_i;
+    output [SIZE_OUT_DATA_S_FFT-1:0] _data_from_secondFFT_Nchet_q;  
+    output _flag_complete_chet;
+    output _flag_complete_Nchet;  
 
     assign clk_o_data = clk;//NOTE возможно потребуеться давать клок только когда данные отправляюьбся
     
@@ -305,60 +318,9 @@ module myFFT
                             data_out_mas_i[numm_3] <= data_out_mas_i[numm_3] + data_in_q;
                             data_out_mas_q[numm_3] <= data_out_mas_q[numm_3] - data_in_i;
                         end
-                        
-                        endcase
-                            
-//                        case(counterReciveDataFFT)
-//                        0:
-//                        begin
-//                            data_out_mas_i[0] = data_in_i;
-//                            data_out_mas_q[0] = data_in_q;
-                            
-//                            data_out_mas_i[2] = data_in_i;
-//                            data_out_mas_q[2] = data_in_q;
-                            
-//                        end
-//                        1:
-//                        begin
-//                            data_out_mas_i[1] = data_in_i;
-//                            data_out_mas_q[1] = data_in_q;
-                            
-//                            data_out_mas_i[3] = data_in_i;
-//                            data_out_mas_q[3] = data_in_q;
-//                        end
-//                        2:
-//                        begin
-//                            data_out_mas_i[0] = data_out_mas_i[0] + data_in_i;
-//                            data_out_mas_q[0] = data_out_mas_q[0] + data_in_q;
-                            
-//                            data_out_mas_i[2] = data_out_mas_i[2] - data_in_i;
-//                            data_out_mas_q[2] = data_out_mas_q[2] - data_in_q;
-//                        end
-//                        3:
-//                        begin                           
-//                            data_out_mas_i[1] = data_out_mas_i[1] + data_in_i;
-//                            data_out_mas_q[1] = data_out_mas_q[1] + data_in_q;
-                            
-//                            data_out_mas_i[3] = data_out_mas_i[3] - data_in_i;
-//                            data_out_mas_q[3] = data_out_mas_q[3] - data_in_q;
-//                        end
-//                        endcase  
+                        endcase 
                     end
                 end
-//                else if(state == stateSummFFT)
-//                begin
-//                    data_out_mas_i[0] <= data_out_mas_i[0] + data_out_mas_i[1];
-//                    data_out_mas_q[0] <= data_out_mas_q[0] + data_out_mas_q[1];
-                    
-//                    data_out_mas_i[numm_1] <= data_out_mas_i[2] + data_out_mas_q[3];
-//                    data_out_mas_q[numm_1] <= data_out_mas_q[2] - data_out_mas_i[3];
-                    
-//                    data_out_mas_i[2] <= data_out_mas_i[0] - data_out_mas_i[1];
-//                    data_out_mas_q[2] <= data_out_mas_q[0] - data_out_mas_q[1];
-                    
-//                    data_out_mas_i[numm_3] <= data_out_mas_i[2] - data_out_mas_q[3];
-//                    data_out_mas_q[numm_3] <= data_out_mas_q[2] + data_out_mas_i[3];
-//                end
                 else counterReciveDataFFT <= 0;//когда все математические операции выполнены можно заново принимать данные
             end
         end
@@ -395,8 +357,8 @@ module myFFT
 
         always @ (posedge clk)
         begin : flagReciveFFT
-            if((counterReciveDataFFT == 3) & valid)  reg_flag_wayt_data <= 1'b0;
-            else                            reg_flag_wayt_data <= 1'b1;
+            if((counterReciveDataFFT == 3) & valid)                 reg_flag_wayt_data <= 1'b0;
+            else if((counterSendData == 3) & flag_ready_recive)     reg_flag_wayt_data <= 1'b1;
 
         end
         
@@ -417,6 +379,13 @@ module myFFT
         wire [SIZE_OUT_DATA_S_FFT-1:0] data_from_secondFFT_Nchet_q;
         wire flag_complete_chet;
         wire flag_complete_Nchet;
+        
+//        assign _data_from_secondFFT_chet_i = data_from_secondFFT_chet_i;
+//        assign _data_from_secondFFT_chet_q = data_from_secondFFT_chet_q;
+        assign _data_from_secondFFT_Nchet_i = data_from_secondFFT_Nchet_i;
+        assign _data_from_secondFFT_Nchet_q = data_from_secondFFT_Nchet_q;
+        assign _flag_complete_chet = flag_complete_chet;
+//        assign _flag_complete_Nchet = flag_complete_Nchet; 
 
         
         //*****extern memory for massive data*****
@@ -522,42 +491,120 @@ module myFFT
             counterReadData_Nchet = 0;
         end
         //recursi
-        //0 2 4...
-        myFFT #(.SIZE_BUFFER(SIZE_BUFFER-1),.DATA_FFT_SIZE(DATA_FFT_SIZE), .FAST(FAST), .TYPE(TYPE), 
-                .COMPENS_FP(COMPENS_FP), .MIN_FFT_x4(MIN_FFT_x4), .USE_ROUND(USE_ROUND), .USE_DSP(USE_DSP))
-        dataChetn(
-            .clk(clk),
-            .reset(reset),
-            .valid(/*validChet & valid*/(counterReciveDataFFT[0] == 1'b0) & (/*state == stateWaytData*//*flag_wayt_data*/1) & valid),
-            .clk_i_data(clk_i_data),
-            .data_in_i(data_in_i),
-            .data_in_q(data_in_q),
-            .clk_o_data(),
-            .data_out_i(data_from_secondFFT_chet_i),
-            .data_out_q(data_from_secondFFT_chet_q),
-            .complete(flag_complete_chet),
-            .stateFFT(stateFFTChet),
-            .flag_ready_recive(resiveFromChet),/*input flags for output data*/
-            .flag_wayt_data(flag_wayt_data_chet)/*flag can recive daat data*/
-        );
-        //1 3 5...
-        myFFT #(.SIZE_BUFFER(SIZE_BUFFER-1),.DATA_FFT_SIZE(DATA_FFT_SIZE), .FAST(FAST), .TYPE(TYPE), 
-                .COMPENS_FP(COMPENS_FP), .MIN_FFT_x4(MIN_FFT_x4), .USE_ROUND(USE_ROUND), .USE_DSP(USE_DSP))
-        dataNChetn(
-            .clk(clk),
-            .reset(reset),
-            .valid(/*validNChet & valid*/(counterReciveDataFFT[0] == 1'b1) & (/*state == stateWaytData*//*flag_wayt_data*/1)  & valid),
-            .clk_i_data(clk_i_data),
-            .data_in_i(data_in_i),
-            .data_in_q(data_in_q),
-            .clk_o_data(),
-            .data_out_i(data_from_secondFFT_Nchet_i),
-            .data_out_q(data_from_secondFFT_Nchet_q),
-            .complete(flag_complete_Nchet),
-            .stateFFT(stateFFTNChet),
-            .flag_ready_recive(resiveFromNChet),/*input flags for output data*/
-            .flag_wayt_data(flag_wayt_data_Nchet)/*flag can recive daat data*/
-        );
+        if(PARAREL_THIS_FFT)
+        begin
+            //0 2 4...
+            myFFT #(.SIZE_BUFFER(SIZE_BUFFER-1),.DATA_FFT_SIZE(DATA_FFT_SIZE), .FAST(FAST), .TYPE(TYPE), 
+                    .COMPENS_FP(COMPENS_FP), .MIN_FFT_x4(MIN_FFT_x4), .USE_ROUND(USE_ROUND), .USE_DSP(USE_DSP),
+                    .PARAREL_FFT(PARAREL_FFT))
+            dataChetn(
+                .clk(clk),
+                .reset(reset),
+                .valid(/*validChet & valid*/(counterReciveDataFFT[0] == 1'b0) & (/*state == stateWaytData*//*flag_wayt_data*/1) & valid),
+                .clk_i_data(clk_i_data),
+                .data_in_i(data_in_i),
+                .data_in_q(data_in_q),
+                .clk_o_data(),
+                .data_out_i(data_from_secondFFT_chet_i),
+                .data_out_q(data_from_secondFFT_chet_q),
+                .complete(flag_complete_chet),
+                .stateFFT(stateFFTChet),
+                .flag_ready_recive(resiveFromChet),/*input flags for output data*/
+                .flag_wayt_data(flag_wayt_data_chet)/*flag can recive daat data*/
+            );
+            //1 3 5...
+            myFFT #(.SIZE_BUFFER(SIZE_BUFFER-1),.DATA_FFT_SIZE(DATA_FFT_SIZE), .FAST(FAST), .TYPE(TYPE), 
+                    .COMPENS_FP(COMPENS_FP), .MIN_FFT_x4(MIN_FFT_x4), .USE_ROUND(USE_ROUND), .USE_DSP(USE_DSP),
+                    .PARAREL_FFT(PARAREL_FFT))
+            dataNChetn(
+                .clk(clk),
+                .reset(reset),
+                .valid(/*validNChet & valid*/(counterReciveDataFFT[0] == 1'b1) & (/*state == stateWaytData*//*flag_wayt_data*/1)  & valid),
+                .clk_i_data(clk_i_data),
+                .data_in_i(data_in_i),
+                .data_in_q(data_in_q),
+                .clk_o_data(),
+                .data_out_i(data_from_secondFFT_Nchet_i),
+                .data_out_q(data_from_secondFFT_Nchet_q),
+                .complete(flag_complete_Nchet),
+                .stateFFT(stateFFTNChet),
+                .flag_ready_recive(resiveFromNChet),/*input flags for output data*/
+                .flag_wayt_data(flag_wayt_data_Nchet)/*flag can recive daat data*/
+            );
+        end
+        else
+        begin
+            wire flag_wayt_data_second;
+            wire flag_second_fft_valid;
+            wire [DATA_FFT_SIZE-1:0] data_for_secondFFT_i;
+            wire [DATA_FFT_SIZE-1:0] data_for_secondFFT_q;
+            wire [SIZE_OUT_DATA_S_FFT-1:0] data_from_secondFFT_i;
+            wire [SIZE_OUT_DATA_S_FFT-1:0] data_from_secondFFT_q;
+            wire flag_complete_second;
+            wire resiveFromSecond;
+            
+            assign _data_from_secondFFT_chet_i = data_for_secondFFT_i;
+            assign _data_from_secondFFT_chet_q = data_for_secondFFT_q;
+            assign _flag_complete_Nchet = flag_second_fft_valid; 
+        
+            myFFT #(.SIZE_BUFFER(SIZE_BUFFER-1),.DATA_FFT_SIZE(DATA_FFT_SIZE), .FAST(FAST), .TYPE(TYPE), 
+                    .COMPENS_FP(COMPENS_FP), .MIN_FFT_x4(MIN_FFT_x4), .USE_ROUND(USE_ROUND), .USE_DSP(USE_DSP),
+                    .PARAREL_FFT(PARAREL_FFT))
+            dataChetnNChetn(
+                .clk(clk),
+                .reset(reset),
+                .valid(flag_second_fft_valid),
+                .clk_i_data(clk_i_data),
+                .data_in_i(data_for_secondFFT_i),
+                .data_in_q(data_for_secondFFT_q),
+                .clk_o_data(),
+                .data_out_i(data_from_secondFFT_i),
+                .data_out_q(data_from_secondFFT_q),
+                .complete(flag_complete_second),
+                .stateFFT(stateFFTChet),
+                .flag_ready_recive(resiveFromSecond),/*input flags for output data*/
+                .flag_wayt_data(flag_wayt_data_second)/*flag can recive daat data*/
+            );
+            
+            interconnect_data_to_sFFT #(.SIZE_BUFFER(SIZE_BUFFER),/*log2(NFFT)*/
+                                        .DATA_FFT_SIZE(DATA_FFT_SIZE)
+                                        )                            
+            _interconnect_data_to_sFFT(
+                .clk(clk),
+                .reset(reset),
+                .in_data_i(data_in_i),
+                .in_data_q(data_in_q),
+                .valid(valid),
+                .fft_wayt_data(flag_wayt_data_second),
+                .out_data_i(data_for_secondFFT_i),
+                .out_data_q(data_for_secondFFT_q),
+                .outvalid(flag_second_fft_valid),
+                .counter_data(counterReciveDataFFT),
+                .wayt_data_second_NChet(flag_wayt_data_Nchet)
+            );
+            
+            interconnect_sFFT_to_two_data #(.SIZE_BUFFER(SIZE_BUFFER),/*log2(NFFT)*/
+                                            .DATA_FFT_SIZE(SIZE_OUT_DATA_S_FFT)
+                                            )
+            _interconnect_sFFT_to_two_data(
+                .clk(clk),
+                .reset(reset),
+                .fft_valid(flag_complete_second),
+                .data_from_fft_i(data_from_secondFFT_i),
+                .data_from_fft_q(data_from_secondFFT_q),
+                
+                .flag_ready_recive_chet(resiveFromChet),
+                .flag_ready_recive_Nchet(resiveFromNChet),
+                .data_fft_chet_i(data_from_secondFFT_chet_i),
+                .data_fft_chet_q(data_from_secondFFT_chet_q),
+                .data_fft_Nchet_i(data_from_secondFFT_Nchet_i),
+                .data_fft_Nchet_q(data_from_secondFFT_Nchet_q),
+                .complete_chet(flag_complete_chet),
+                .complete_Nchet(flag_complete_Nchet),
+                .resiveFromSecond(resiveFromSecond)
+            );
+            
+        end
         
         //флаг о том что можно принимать данные изход из состояние нижних ффт и исходя из сумм ффт
 //        assign flag_wayt_data = state == stateWaytData ? 1'b1 : 
@@ -574,13 +621,25 @@ module myFFT
 
         assign flag_wayt_data = reg_flag_wayt_data;
         
-        always @(posedge clk)//TODO
-        begin : flagWaytData
-//            if((counterMultData2 == /*NFFT/4*/1))   reg_flag_wayt_data <= 1'b1;//FFT64 + 0
-//            if((counterMultData2 == /*NFFT/4*/1) | ((resiveFromNChet == 1'b0) & (counterMultData2 == 0)))   reg_flag_wayt_data <= 1'b1;//FFT64+5 //неболоьшое ускорении, но при FFT8 - 16 может криво работать
-            if((counterMultData2 == /*NFFT/4*/1) | (flag_complete_Nchet & (counterMultData2 == 0)))   reg_flag_wayt_data <= 1'b1;//FFT64+6
-            else if((/*flag_wayt_data_chet | */flag_wayt_data_Nchet) == 1'b0) reg_flag_wayt_data <= 1'b0;
-//            reg_flag_wayt_data <= flag_wayt_data_chet & flag_wayt_data_Nchet & (!(flag_complete_chet | flag_complete_Nchet));
+        if(NFFT == 8)
+        begin
+            always @(posedge clk)//NOTE
+            begin : flagWaytData
+                if(state == stateComplete)   reg_flag_wayt_data <= 1'b1;
+                else if((counterReciveDataFFT == NFFT) /*| !flag_wayt_data_Nchet*/) reg_flag_wayt_data <= 1'b0;
+            end
+        end
+        else
+        begin
+            always @(posedge clk)//NOTE
+            begin : flagWaytData
+    //            if((counterMultData2 == /*NFFT/4*/1))   reg_flag_wayt_data <= 1'b1;//FFT64 + 0
+    //            if((counterMultData2 == /*NFFT/4*/1) | ((resiveFromNChet == 1'b0) & (counterMultData2 == 0)))   reg_flag_wayt_data <= 1'b1;//FFT64+5 //неболоьшое ускорении, но при FFT8 - 16 может криво работать
+                if((counterMultData2 == /*NFFT/4*/1) /*| (flag_complete_Nchet & (counterMultData2 == 0))*/)   reg_flag_wayt_data <= 1'b1;//525
+//                if((counterMultData2 == /*NFFT/4*/1) | (flag_complete_Nchet & (counterMultData2 == 0)))   reg_flag_wayt_data <= 1'b1;//595
+                else if((counterReciveDataFFT == (NFFT-1)) & valid /*| !flag_wayt_data_Nchet*/) reg_flag_wayt_data <= 1'b0;
+    //            reg_flag_wayt_data <= flag_wayt_data_chet & flag_wayt_data_Nchet & (!(flag_complete_chet | flag_complete_Nchet));
+            end
         end
         
         reg completeDoneChet = 1'b0;
@@ -652,7 +711,8 @@ module myFFT
                                                .COMPENS_FP(COMPENS_FP), /*false true or add razrad*/
                                                .FAST(FAST),/*slow fast ultrafast slow mult x1 fast mult x2 ultrafast mult x4*/
                                                .USE_ROUND(USE_ROUND),/*0 or 1*/
-                                               .USE_DSP(USE_DSP)/*0 or 1*/)
+                                               .USE_DSP(USE_DSP),/*0 or 1*/
+                                               .PARAPEL_THIS_FFT(PARAREL_THIS_FFT))
             _interconnect_two_sFFT_to_mFFT(
                 .clk(clk),
                 .reset(reset),
