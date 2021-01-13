@@ -194,15 +194,16 @@ module ofdm_frame_gen #(parameter MEMORY_SYZE = 16/*log2(mem size) or number of 
     wire [21:0] symbol_OFDM_q;
     wire complete_fft;
     
-    myFFT
+    myFFT_R4
     #(.SIZE_BUFFER(8),/*log2(NFFT)*/
       .DATA_FFT_SIZE(16),
       .FAST("ultrafast"),/*slow fast ultrafast slow mult x1 fast mult x2 ultrafast mult x4*/
       .TYPE("invers"),/*forvard  invers*/
       .COMPENS_FP("add"),/*false true or add razrad*/
       .MIN_FFT_x4(1),
-      .USE_ROUND(0),/*0 or 1*/
-      .USE_DSP(1)/*0 or 1*/
+      .USE_ROUND(1),/*0 or 1*/
+      .USE_DSP(1),/*0 or 1*/
+      .PARAREL_FFT(9'b111111111)/*example 9'b 111000000 fft 256,128,64 matht pararel anaouther fft math conv; FFT 256 optimal time/resource 111100000 in OFDM systeam optimum 111000000*/
     )
     _fft_OFDM(
         .clk(clk),

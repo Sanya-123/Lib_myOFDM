@@ -43,7 +43,7 @@ module myFFT
       parameter MIN_FFT_x4 = 1,
       parameter USE_ROUND = 1,/*0 or 1*/
       parameter USE_DSP = 1,/*0 or 1*/
-      parameter PARAREL_FFT = 9'b111111111 /*example 8'b 111000000 fft 256,128,64 matht pararel anaouther fft math conv*/
+      parameter PARAREL_FFT = 9'b111111111 /*example 8'b 111000000 fft 256,128,64 matht pararel anaouther fft math conv; FFT 256 optimal time/resource 111100000 in OFDM systeam optimum 111000000*/
     )
     (
         clk,
@@ -59,13 +59,6 @@ module myFFT
         stateFFT,
         flag_ready_recive,/*input flags for output data*/
         flag_wayt_data/*flag can recive daat data*/
-        
-        ,_data_from_secondFFT_chet_i
-        ,_data_from_secondFFT_chet_q
-        ,_data_from_secondFFT_Nchet_i
-        ,_data_from_secondFFT_Nchet_q
-        ,_flag_complete_chet
-        ,_flag_complete_Nchet
     );
     
     localparam NFFT = 1 << SIZE_BUFFER;
@@ -92,13 +85,6 @@ module myFFT
     
     input flag_ready_recive;
     output /*reg*/ flag_wayt_data;
-    
-    output [SIZE_OUT_DATA_S_FFT-1:0] _data_from_secondFFT_chet_i;
-    output [SIZE_OUT_DATA_S_FFT-1:0] _data_from_secondFFT_chet_q;
-    output [SIZE_OUT_DATA_S_FFT-1:0] _data_from_secondFFT_Nchet_i;
-    output [SIZE_OUT_DATA_S_FFT-1:0] _data_from_secondFFT_Nchet_q;  
-    output _flag_complete_chet;
-    output _flag_complete_Nchet;  
 
     assign clk_o_data = clk;//NOTE возможно потребуеться давать клок только когда данные отправляюьбся
     
@@ -379,13 +365,6 @@ module myFFT
         wire [SIZE_OUT_DATA_S_FFT-1:0] data_from_secondFFT_Nchet_q;
         wire flag_complete_chet;
         wire flag_complete_Nchet;
-        
-//        assign _data_from_secondFFT_chet_i = data_from_secondFFT_chet_i;
-//        assign _data_from_secondFFT_chet_q = data_from_secondFFT_chet_q;
-        assign _data_from_secondFFT_Nchet_i = data_from_secondFFT_Nchet_i;
-        assign _data_from_secondFFT_Nchet_q = data_from_secondFFT_Nchet_q;
-        assign _flag_complete_chet = flag_complete_chet;
-//        assign _flag_complete_Nchet = flag_complete_Nchet; 
 
         
         //*****extern memory for massive data*****
@@ -437,6 +416,7 @@ module myFFT
         reg [SIZE_BUFFER-2:0] _data_summ_out_mas_q_r_addr_r_Nc = {(SIZE_BUFFER-1){1'b0}};
         reg [SIZE_OUT_DATA-1:0] _data_summ_out_mas_q_r_writeData_Nc;
         wire [SIZE_OUT_DATA-1:0] _data_summ_out_mas_q_r_readData_Nc;
+        
         memForFFT #(.DATA_FFT_SIZE(SIZE_OUT_DATA), .SIZE_BITS_ADDRES(SIZE_BUFFER-1))//? SIZE_BUFFER : SIZE_BUFFER-1
         data_summ_out_mas_q_r
         (
@@ -461,8 +441,6 @@ module myFFT
         
         wire [2:0] stateFFTChet;
         wire [2:0] stateFFTNChet;
-        reg [SIZE_BUFFER-1:0] counterReadData_chet;
-        reg [SIZE_BUFFER-1:0] counterReadData_Nchet;
         reg [SIZE_BUFFER-1:0] counterMultData = 0;
 //        reg [SIZE_BUFFER-1:0] counterMultData2 = 0;
         wire [SIZE_BUFFER-1:0] counterMultData2;
@@ -487,8 +465,6 @@ module myFFT
         begin
             valid_data_chet = 0;
             valid_data_Nchet = 0;
-            counterReadData_chet = 0;
-            counterReadData_Nchet = 0;
         end
         //recursi
         if(PARAREL_THIS_FFT)
@@ -542,10 +518,6 @@ module myFFT
             wire [SIZE_OUT_DATA_S_FFT-1:0] data_from_secondFFT_q;
             wire flag_complete_second;
             wire resiveFromSecond;
-            
-            assign _data_from_secondFFT_chet_i = data_for_secondFFT_i;
-            assign _data_from_secondFFT_chet_q = data_for_secondFFT_q;
-            assign _flag_complete_Nchet = flag_second_fft_valid; 
         
             myFFT #(.SIZE_BUFFER(SIZE_BUFFER-1),.DATA_FFT_SIZE(DATA_FFT_SIZE), .FAST(FAST), .TYPE(TYPE), 
                     .COMPENS_FP(COMPENS_FP), .MIN_FFT_x4(MIN_FFT_x4), .USE_ROUND(USE_ROUND), .USE_DSP(USE_DSP),
@@ -605,19 +577,10 @@ module myFFT
             );
             
         end
-        
-        //флаг о том что можно принимать данные изход из состояние нижних ффт и исходя из сумм ффт
-//        assign flag_wayt_data = state == stateWaytData ? 1'b1 : 
-//                counterReciveDataFFT[0] == 1'b0 ? flag_wayt_data_chet : flag_wayt_data_Nchet /*& (!(flag_complete_chet & flag_complete_Nchet))*/;
 
-//        assign flag_wayt_data = state == stateWaytData ? 1'b1 
-//                : (/*state == stateWaytFFT ? 1'b0 :*/ ((flag_wayt_data_chet & flag_wayt_data_Nchet & (!(flag_complete_chet | flag_complete_Nchet)))));
 
         reg reg_flag_wayt_data = 1'b1;
-        
-//        assign flag_wayt_data = state == stateWaytData ? 1'b1 
-//                : (state == stateWaytFFT ? 1'b0 : (state == stateWriteData ? 1'b0 
-//                : reg_flag_wayt_data));
+
 
         assign flag_wayt_data = reg_flag_wayt_data;
         
@@ -633,12 +596,9 @@ module myFFT
         begin
             always @(posedge clk)//NOTE
             begin : flagWaytData
-    //            if((counterMultData2 == /*NFFT/4*/1))   reg_flag_wayt_data <= 1'b1;//FFT64 + 0
-    //            if((counterMultData2 == /*NFFT/4*/1) | ((resiveFromNChet == 1'b0) & (counterMultData2 == 0)))   reg_flag_wayt_data <= 1'b1;//FFT64+5 //неболоьшое ускорении, но при FFT8 - 16 может криво работать
-                if((counterMultData2 == /*NFFT/4*/1) /*| (flag_complete_Nchet & (counterMultData2 == 0))*/)   reg_flag_wayt_data <= 1'b1;//525
-//                if((counterMultData2 == /*NFFT/4*/1) | (flag_complete_Nchet & (counterMultData2 == 0)))   reg_flag_wayt_data <= 1'b1;//595
+                if((counterMultData2 == /*NFFT/4*/1) )   reg_flag_wayt_data <= 1'b1;//595
+//                if((counterMultData2 == /*NFFT/4*/1) | (flag_complete_Nchet & (counterMultData2 == 0)))   reg_flag_wayt_data <= 1'b1;//525
                 else if((counterReciveDataFFT == (NFFT-1)) & valid /*| !flag_wayt_data_Nchet*/) reg_flag_wayt_data <= 1'b0;
-    //            reg_flag_wayt_data <= flag_wayt_data_chet & flag_wayt_data_Nchet & (!(flag_complete_chet | flag_complete_Nchet));
             end
         end
         
@@ -696,11 +656,6 @@ module myFFT
             wire [SIZE_OUT_DATA-1:0] out_summ_0__NFFT_2_q;
             wire [SIZE_OUT_DATA-1:0] out_summ_NFFT_2__NFFT_i;
             wire [SIZE_OUT_DATA-1:0] out_summ_NFFT_2__NFFT_q;
-            
-//            wire [SIZE_OUT_DATA-1:0] d_out_summ_0__NFFT_2_i;
-//            wire [SIZE_OUT_DATA-1:0] d_out_summ_0__NFFT_2_q;
-//            wire [SIZE_OUT_DATA-1:0] d_out_summ_NFFT_2__NFFT_i;
-//            wire [SIZE_OUT_DATA-1:0] d_out_summ_NFFT_2__NFFT_q;
             
             wire interconnect_dataComplete;
 

@@ -61,14 +61,8 @@ module memForFFT #(parameter DATA_FFT_SIZE = 16,
         if(readEn)  outData <= data[addr_r];//read
         if(writeEn) data[addr] <= inData;//write
         
-//        if(writeEn) if(name != "nonoe") $display("i addres write %d", addr);
-//        if(writeEn) if(name != "nonoe") $display("i data write %d", inData);
-        
         if(readEn2) outData2 <= data2[addr_r2];//read
         if(writeEn2) data2[addr2] <= inData2;//write
-        
-//        if(writeEn2) if(name != "nonoe") $display("q addres write %d", addr2);
-//        if(writeEn2) if(name != "nonoe") $display("q data write %d", inData2);
     end
     
 endmodule

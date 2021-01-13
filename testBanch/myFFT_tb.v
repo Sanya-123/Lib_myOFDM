@@ -26,8 +26,8 @@ parameter SIZE_BUFFER = 8;
 parameter NFFT = 2**SIZE_BUFFER;
 
 parameter SIZE_DATA  =  16;
-parameter SIZE_DATA_OUT  =  16/* + SIZE_BUFFER - 2*/;
-parameter COMPENS_PF = "false";
+parameter SIZE_DATA_OUT  =  16 + SIZE_BUFFER - 2;
+parameter COMPENS_PF = "add";
 
 reg clk = 0;
 reg [SIZE_DATA-1:0] data_i = 0;
@@ -47,6 +47,12 @@ reg vakidData = 1'b0;
 
 wire flag_wayt_data;
 reg  flag_ready_read = 1'b1;
+//initial begin
+//    #10 flag_ready_read = 1'b0;
+//    #70 flag_ready_read = 1'b1;
+//    #10 flag_ready_read = 1'b0;
+//    #10 flag_ready_read = 1'b1;
+//end
 
 //reg [15:0] data_i_mas [3:0];
 //initial
@@ -139,7 +145,8 @@ end
 //        vakidData = 1'b0;
 //        #2300;
 
-        #780;
+//        #780;//R2
+        #300;//R4
     end
     
 //    initial
@@ -235,15 +242,22 @@ wire [SIZE_BUFFER:0] _counterMultData;
 //wire _enMult;
 //wire _dataComplete;
 
-    wire [SIZE_DATA_OUT-1:0] d_out_summ_0__NFFT_2_i;
-    wire [SIZE_DATA_OUT-1:0] d_out_summ_0__NFFT_2_q;
-    wire [SIZE_DATA_OUT-1:0] d_out_summ_NFFT_2__NFFT_i;
-    wire [SIZE_DATA_OUT-1:0] d_out_summ_NFFT_2__NFFT_q;
+//    wire [SIZE_DATA_OUT-1:0] d_out_summ_0__NFFT_2_i;
+//    wire [SIZE_DATA_OUT-1:0] d_out_summ_0__NFFT_2_q;
+//    wire [SIZE_DATA_OUT-1:0] d_out_summ_NFFT_2__NFFT_i;
+//    wire [SIZE_DATA_OUT-1:0] d_out_summ_NFFT_2__NFFT_q;
 //    wire d_dataComplete;
 
-myFFT
+//    wire [15:0] d_data_from_secondFFT_0_i;
+//    wire [15:0] d_data_from_secondFFT_0_q;
+//    wire d_flag_complete_0;
+//    wire d_flag_complete_1;
+//    wire d_flag_complete_2;
+//    wire d_flag_complete_3;
+//myFFT
+myFFT_R4
 #(.SIZE_BUFFER(SIZE_BUFFER), .DATA_FFT_SIZE(SIZE_DATA), .TYPE("forvard")/*forvard invers*/, .FAST("ultrafast")/*slow fast ultrafast*/, 
-  .COMPENS_FP(COMPENS_PF)/*false true or add razrad*/, .MIN_FFT_x4(1), .USE_ROUND(1), .USE_DSP(1), .PARAREL_FFT(9'b111100000))
+  .COMPENS_FP(COMPENS_PF)/*false true or add razrad*/, .MIN_FFT_x4(1), .USE_ROUND(1), .USE_DSP(1), .PARAREL_FFT(9'b111111111))
 _myFFT
 (
     .clk(clk),
@@ -259,13 +273,6 @@ _myFFT
     .stateFFT(stateFFT),
     .flag_wayt_data(flag_wayt_data),
     .flag_ready_recive(flag_ready_read)
-    
-    ,._data_from_secondFFT_chet_i(d_out_summ_0__NFFT_2_i)
-    ,._data_from_secondFFT_chet_q(d_out_summ_0__NFFT_2_q)
-    ,._data_from_secondFFT_Nchet_i(d_out_summ_NFFT_2__NFFT_i)
-    ,._data_from_secondFFT_Nchet_q(d_out_summ_NFFT_2__NFFT_q)
-    ,._flag_complete_chet(_flag_complete_chet)
-    ,._flag_complete_Nchet(_flag_complete_Nchet)
 );
 
 //myFFT
