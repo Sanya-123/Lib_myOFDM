@@ -36,12 +36,12 @@ wire [15:0] out_data_q;
 wire tx_valid;
 wire done_transmit;
 wire [3:0] o_state_OFDM;
-wire [7:0] d_FCH_data;
-wire [15:0] d_fft_data_i;
-wire [15:0] d_fft_data_q;
-wire [15:0] d_in_fft_data_i;
-wire [15:0] d_in_fft_data_q;
-wire d_complete_fft;
+//wire [7:0] d_FCH_data;
+//wire [15:0] d_fft_data_i;
+//wire [15:0] d_fft_data_q;
+//wire [15:0] d_in_fft_data_i;
+//wire [15:0] d_in_fft_data_q;
+//wire d_complete_fft;
 
 //always
 //begin
@@ -112,13 +112,13 @@ end
         .out_data_q(out_data_q),
         .tx_valid(tx_valid),
         .done_transmit(done_transmit),
-        .o_state_OFDM(o_state_OFDM),
-        .d_FCH_data(d_FCH_data),
-        .d_fft_data_i(d_fft_data_i),
-        .d_fft_data_q(d_fft_data_q),
-        .d_in_fft_data_i(d_in_fft_data_i),
-        .d_in_fft_data_q(d_in_fft_data_q),
-        .d_complete_fft(d_complete_fft)
+        .o_state_OFDM(o_state_OFDM)
+//        .d_FCH_data(d_FCH_data),
+//        .d_fft_data_i(d_fft_data_i),
+//        .d_fft_data_q(d_fft_data_q),
+//        .d_in_fft_data_i(d_in_fft_data_i),
+//        .d_in_fft_data_q(d_in_fft_data_q),
+//        .d_complete_fft(d_complete_fft)
     );
     
     wire signed [15+8:0] out_preamble_i;

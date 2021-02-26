@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 `include "commonOFDM.vh"
-
+//TODO add flag_wayt_data
 module ofdm_frame_gen #(parameter MEMORY_SYZE = 16/*log2(mem size) or number of bits*/)(
         clk,
         en,
@@ -30,6 +30,7 @@ module ofdm_frame_gen #(parameter MEMORY_SYZE = 16/*log2(mem size) or number of 
         in_data,
         data_frame_size,
         modulation,
+        i_wayt_read_data,
         flag_ready_read,
         out_data_i,
         out_data_q,
@@ -54,6 +55,8 @@ module ofdm_frame_gen #(parameter MEMORY_SYZE = 16/*log2(mem size) or number of 
     input [7:0] in_data;
     input [7:0] data_frame_size;//количество отправляемых кадров с информауией
     input [2:0] modulation;//тип модуляции для данных
+    input i_wayt_read_data;
+    
     output flag_ready_read;//алаг о том что можно писать данные
     //отсчеты на выходк
     output [15:0] out_data_i;
@@ -168,6 +171,7 @@ module ofdm_frame_gen #(parameter MEMORY_SYZE = 16/*log2(mem size) or number of 
     wire [15:0] symbol_for_ifft_i;
     wire [15:0] symbol_for_ifft_q;
     wire fft_flag_wayt_data;
+    wire ad_cp_wayt_recive_data;
     
     wire ofdm_payload_valid = data_symbols_counter == 0 ? FCH_valid : valid /*& flag_ready_read*/;
     wire [7:0] ofdm_payload_in_data = data_symbols_counter == 0 ? FCH_data : code_data;
@@ -218,7 +222,7 @@ module ofdm_frame_gen #(parameter MEMORY_SYZE = 16/*log2(mem size) or number of 
         .complete(complete_fft),
         .stateFFT(),
         .flag_wayt_data(fft_flag_wayt_data),
-        .flag_ready_recive(1'b1)
+        .flag_ready_recive(ad_cp_wayt_recive_data)
     );
     
     wire add_cp_output_en;
@@ -232,11 +236,13 @@ module ofdm_frame_gen #(parameter MEMORY_SYZE = 16/*log2(mem size) or number of 
         .clk(clk),
         .reset(reset),
         .in_data_en(complete_fft),
+        .i_wayt_read_data(i_wayt_read_data),
         .in_data_i(symbol_OFDM_i[21:6]),
         .in_data_q(symbol_OFDM_q[21:6]),
         .output_en(add_cp_output_en),
         .out_data_i(add_cp_out_data_i),
-        .out_data_q(add_cp_out_data_q)
+        .out_data_q(add_cp_out_data_q),
+        .o_wayt_recive_data(ad_cp_wayt_recive_data)
     );
     
     assign d_fft_data_i = symbol_OFDM_i[21:6];
@@ -260,6 +266,7 @@ module ofdm_frame_gen #(parameter MEMORY_SYZE = 16/*log2(mem size) or number of 
     _short_preamble(
         .clk(clk),
         .addr(preambleAddres),
+        .en(i_wayt_read_data),
         .dout_i(out_short_preamble_i),
         .dout_q(out_short_preamble_q)
     );
@@ -279,6 +286,7 @@ module ofdm_frame_gen #(parameter MEMORY_SYZE = 16/*log2(mem size) or number of 
     _long_preamble(
         .clk(clk),
         .addr(preambleAddres),
+        .en(i_wayt_read_data),
         .dout_i(out_long_preamble_i),
         .dout_q(out_long_preamble_q)
     );
@@ -290,7 +298,7 @@ module ofdm_frame_gen #(parameter MEMORY_SYZE = 16/*log2(mem size) or number of 
     
         
     reg out_valid_reg = 1'b0;
-    assign tx_valid = out_valid_reg;
+    assign tx_valid = out_valid_reg & i_wayt_read_data;
     
     always @(posedge clk)
     begin
@@ -322,6 +330,8 @@ module ofdm_frame_gen #(parameter MEMORY_SYZE = 16/*log2(mem size) or number of 
         end
         else
         begin
+        if(i_wayt_read_data)
+        begin
             if(state_OFDM == state_frame_data)
             begin
                 if(counter_sample < SYMBOL_SIZE)    begin  if(add_cp_output_en) counter_sample <= counter_sample + 1;end
@@ -341,14 +351,17 @@ module ofdm_frame_gen #(parameter MEMORY_SYZE = 16/*log2(mem size) or number of 
                 done_transmit <= 1'b0;
             end
         end
+        end
     end
     
     reg [15:0] add_cp_out_data_i_d1;
     reg [15:0] add_cp_out_data_q_d1;
     always @(posedge clk)
     begin
+        if(i_wayt_read_data) begin
         add_cp_out_data_i_d1 <= add_cp_out_data_i;
         add_cp_out_data_q_d1 <= add_cp_out_data_q;
+        end
     end
     
     assign out_data_i = state_OFDM == state_short_preamble ? out_short_preamble_i : state_OFDM == state_long_preamble ? out_long_preamble_i : state_OFDM == state_frame_data ? add_cp_out_data_i_d1 : 0;
@@ -359,6 +372,8 @@ module ofdm_frame_gen #(parameter MEMORY_SYZE = 16/*log2(mem size) or number of 
     begin
         if(reset)   state_OFDM <= state_IDLE;
         else
+        begin
+        if(i_wayt_read_data)
         begin
             case(state_OFDM)
             state_IDLE :begin   if(beginTX)  state_OFDM <= state_short_preamble; end
@@ -412,6 +427,7 @@ module ofdm_frame_gen #(parameter MEMORY_SYZE = 16/*log2(mem size) or number of 
                     if(flag_reset_counters) state_OFDM <= state_IDLE;
                 end
             endcase
+        end
         end
     end
     

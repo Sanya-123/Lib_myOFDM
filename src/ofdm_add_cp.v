@@ -19,28 +19,32 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-
+//TODO add flag_wayt_data
 module ofdm_add_cp #(parameter DATA_SIZE = 16,
                      parameter SYMBOLS_SIZE = 256,
                      parameter CP_LENGHT = 8)(
         clk,
         reset,
         in_data_en,
+        i_wayt_read_data,
         in_data_i,
         in_data_q,
         output_en,
         out_data_i,
-        out_data_q
+        out_data_q,
+        o_wayt_recive_data
     );
     
     input clk;
     input reset;
     input in_data_en;
+    input i_wayt_read_data;
     input [DATA_SIZE-1:0] in_data_i;
     input [DATA_SIZE-1:0] in_data_q;
     output reg output_en = 0;
     output reg [DATA_SIZE-1:0] out_data_i;
     output reg [DATA_SIZE-1:0] out_data_q;
+    output o_wayt_recive_data;
     
     
     reg [15:0] counterData_in = 0;
@@ -48,6 +52,8 @@ module ofdm_add_cp #(parameter DATA_SIZE = 16,
     
     reg [DATA_SIZE-1:0] reg_data_i [SYMBOLS_SIZE-1:0];
     reg [DATA_SIZE-1:0] reg_data_q [SYMBOLS_SIZE-1:0];
+    
+    assign o_wayt_recive_data = counterData_in < SYMBOLS_SIZE;
     
     always @(posedge clk)
     begin : recive_data
@@ -83,6 +89,8 @@ module ofdm_add_cp #(parameter DATA_SIZE = 16,
         end
         else
         begin
+        if(i_wayt_read_data)
+        begin
             if(counterData_in == SYMBOLS_SIZE)                          flag_all_data_recive <= 1;
             else if(counterData_out == (SYMBOLS_SIZE + CP_LENGHT-1))    flag_all_data_recive <= 0;
             
@@ -100,6 +108,7 @@ module ofdm_add_cp #(parameter DATA_SIZE = 16,
             else    counterData_out <= 0;
             
             output_en <= flag_all_data_recive;
+        end
         end
     end
     

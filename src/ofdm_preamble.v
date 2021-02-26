@@ -23,12 +23,14 @@
 module ofdm_preamble #(parameter FILE_DATA_I = "", parameter FILE_DATA_Q = "")(
         clk,
         addr,
+        en,
         dout_i,
         dout_q 
     );
 
     input clk;
     input      [7:0]  addr;
+    input en;
     output reg [15:0] dout_i;
     output reg [15:0] dout_q;
     
@@ -43,8 +45,8 @@ module ofdm_preamble #(parameter FILE_DATA_I = "", parameter FILE_DATA_Q = "")(
     
     always @(posedge clk)
     begin
-        dout_i <= mem_i[addr];
-        dout_q <= mem_q[addr];
+        if(en)  dout_i <= mem_i[addr];
+        if(en)  dout_q <= mem_q[addr];
     end
 
 endmodule
