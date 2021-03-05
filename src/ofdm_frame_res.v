@@ -28,7 +28,7 @@ module ofdm_frame_res #(parameter DATA_SIZE = 16
     valid,
     in_data_i,
     in_data_q,
-    o_flaf_wayt_data,
+    o_flag_wayt_data,
     find_preamble_a,
     find_preamble_b
     );
@@ -40,7 +40,7 @@ module ofdm_frame_res #(parameter DATA_SIZE = 16
     input [DATA_SIZE-1:0] in_data_i;
     input [DATA_SIZE-1:0] in_data_q;
     
-    output o_flaf_wayt_data;
+    output o_flag_wayt_data;
     
     output find_preamble_a;
     output find_preamble_b;

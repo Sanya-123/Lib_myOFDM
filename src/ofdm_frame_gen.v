@@ -168,8 +168,8 @@ module ofdm_frame_gen #(parameter MEMORY_SYZE = 16/*log2(mem size) or number of 
     assign d_ofdm_payload_valid = data_symbols_counter == 0 ? FCH_valid : valid;
     
     wire symbol_out_done;
-    wire [15:0] symbol_for_ifft_i;
-    wire [15:0] symbol_for_ifft_q;
+    (* dont_touch = "true", MARK_DEBUG="true" *)  wire [15:0] symbol_for_ifft_i;
+    (* dont_touch = "true", MARK_DEBUG="true" *)  wire [15:0] symbol_for_ifft_q;
     wire fft_flag_wayt_data;
     wire ad_cp_wayt_recive_data;
     
@@ -194,8 +194,8 @@ module ofdm_frame_gen #(parameter MEMORY_SYZE = 16/*log2(mem size) or number of 
         .wayt_recive_data(fft_flag_wayt_data)
     );
     
-    wire [21:0] symbol_OFDM_i;
-    wire [21:0] symbol_OFDM_q;
+    (* dont_touch = "true", MARK_DEBUG="true" *) wire [21:0] symbol_OFDM_i;
+    (* dont_touch = "true", MARK_DEBUG="true" *) wire [21:0] symbol_OFDM_q;
     wire complete_fft;
     
     myFFT_R4
@@ -226,8 +226,8 @@ module ofdm_frame_gen #(parameter MEMORY_SYZE = 16/*log2(mem size) or number of 
     );
     
     wire add_cp_output_en;
-    wire [15:0] add_cp_out_data_i;
-    wire [15:0] add_cp_out_data_q;
+    (* dont_touch = "true", MARK_DEBUG="true" *) wire [15:0] add_cp_out_data_i;
+    (* dont_touch = "true", MARK_DEBUG="true" *) wire [15:0] add_cp_out_data_q;
     
     ofdm_add_cp #(.DATA_SIZE(16),
                   .SYMBOLS_SIZE(256),
@@ -306,8 +306,8 @@ module ofdm_frame_gen #(parameter MEMORY_SYZE = 16/*log2(mem size) or number of 
         begin
 //            addres_write_mem <= 0;
 //            write_en_mem <= 1'b0;
-            out_valid_reg <= 1'b0;
-            preambleAddres <= 0;
+//            out_valid_reg <= 1'b0;
+//            preambleAddres <= 0;
         end
     end
     
@@ -370,13 +370,23 @@ module ofdm_frame_gen #(parameter MEMORY_SYZE = 16/*log2(mem size) or number of 
     //generate data
     always @(posedge clk)
     begin
-        if(reset)   state_OFDM <= state_IDLE;
+        if(reset)   
+        begin
+            state_OFDM <= state_IDLE;
+            out_valid_reg <= 1'b0; 
+            preambleAddres <= 0; 
+        end
         else
         begin
         if(i_wayt_read_data)
         begin
             case(state_OFDM)
-            state_IDLE :begin   if(beginTX)  state_OFDM <= state_short_preamble; end
+            state_IDLE :
+                begin
+                    out_valid_reg <= 1'b0; 
+                    preambleAddres <= 0;   
+                    if(beginTX)  state_OFDM <= state_short_preamble; 
+                end
             
             state_short_preamble:
                 begin
