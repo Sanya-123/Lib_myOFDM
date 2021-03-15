@@ -75,35 +75,35 @@ end
     begin
         #10
         
-//        vakidData = 1'b1;
-//        for(i = 0; i < NFFT; i = i + 1)
-//        begin
-//            data_i = data_i_mas[i];
-//            data_q = data_q_mas[i];
-////            data_i[16] = data_i[15];
-////            data_q[16] = data_q[15]; 
-//            #10;
-//        end
-        
-//        vakidData = 1'b0;
-        
         vakidData = 1'b1;
-        
-        data_i = 0;
-        data_q = 0;
-        #50;
-        
-        data_i = 500;
-        data_q = 500;
-        #30;
-        
-        data_i = 0;
-        data_q = 0;
-        #2560;
+        for(i = 0; i < NFFT; i = i + 1)
+        begin
+            data_i = data_i_mas[i];
+            data_q = data_q_mas[i];
+//            data_i[16] = data_i[15];
+//            data_q[16] = data_q[15]; 
+            #10;
+        end
         
         vakidData = 1'b0;
         
-        #5000;
+//        vakidData = 1'b1;
+        
+//        data_i = 0;
+//        data_q = 0;
+//        #50;
+        
+//        data_i = 500;
+//        data_q = 500;
+//        #30;
+        
+//        data_i = 0;
+//        data_q = 0;
+//        #2560;
+        
+//        vakidData = 1'b0;
+        
+//        #5000;
         
 //        #40
 //        #400
@@ -162,7 +162,7 @@ end
 //        #2300;
 
 //        #780;//R2
-        #2000;//R4
+        #10080;//R4
     end
     
 //    initial
@@ -273,7 +273,7 @@ wire [SIZE_BUFFER:0] _counterMultData;
 //myFFT
 myFFT_R4
 #(.SIZE_BUFFER(SIZE_BUFFER), .DATA_FFT_SIZE(SIZE_DATA), .TYPE("invers")/*forvard invers*/, .FAST("ultrafast")/*slow fast ultrafast*/, 
-  .COMPENS_FP(COMPENS_PF)/*false true or add razrad*/, .MIN_FFT_x4(1), .USE_ROUND(1), .USE_DSP(1), .PARAREL_FFT(9'b111111111))
+  .COMPENS_FP(COMPENS_PF)/*false true or add razrad*/, .MIN_FFT_x4(1), .USE_ROUND(1), .USE_DSP(1), .PARAREL_FFT(9'b000000000))
 _myFFT
 (
     .clk(clk),

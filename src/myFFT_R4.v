@@ -512,70 +512,80 @@ module myFFT_R4
         end
         else
         begin
-//            wire flag_wayt_data_second;
-//            wire flag_second_fft_valid;
-//            wire [DATA_FFT_SIZE-1:0] data_for_secondFFT_i;
-//            wire [DATA_FFT_SIZE-1:0] data_for_secondFFT_q;
-//            wire [SIZE_OUT_DATA_S_FFT-1:0] data_from_secondFFT_i;
-//            wire [SIZE_OUT_DATA_S_FFT-1:0] data_from_secondFFT_q;
-//            wire flag_complete_second;
-//            wire resiveFromSecond;
+            wire flag_wayt_data_second;
+            wire flag_second_fft_valid;
+            wire [DATA_FFT_SIZE-1:0] data_for_secondFFT_i;
+            wire [DATA_FFT_SIZE-1:0] data_for_secondFFT_q;
+            wire [SIZE_OUT_DATA_S_FFT-1:0] data_from_secondFFT_i;
+            wire [SIZE_OUT_DATA_S_FFT-1:0] data_from_secondFFT_q;
+            wire flag_complete_second;
+            wire resiveFromSecond;
         
-//            myFFT_R4 #(.SIZE_BUFFER(SIZE_BUFFER-1),.DATA_FFT_SIZE(DATA_FFT_SIZE), .FAST(FAST), .TYPE(TYPE), 
-//                    .COMPENS_FP(COMPENS_FP), .USE_ROUND(USE_ROUND), .USE_DSP(USE_DSP), .PARAREL_FFT(PARAREL_FFT))
-//            dataChetnNChetn(
-//                .clk(clk),
-//                .reset(reset),
-//                .valid(flag_second_fft_valid),
-//                .clk_i_data(clk_i_data),
-//                .data_in_i(data_for_secondFFT_i),
-//                .data_in_q(data_for_secondFFT_q),
-//                .clk_o_data(),
-//                .data_out_i(data_from_secondFFT_i),
-//                .data_out_q(data_from_secondFFT_q),
-//                .complete(flag_complete_second),
-//                .stateFFT(stateFFT_0),
-//                .flag_ready_recive(resiveFromSecond),/*input flags for output data*/
-//                .flag_wayt_data(flag_wayt_data_second)/*flag can recive daat data*/
-//            );
+            myFFT_R4 #(.SIZE_BUFFER(SIZE_BUFFER-2),.DATA_FFT_SIZE(DATA_FFT_SIZE), .FAST(FAST), .TYPE(TYPE), 
+                    .COMPENS_FP(COMPENS_FP), .USE_ROUND(USE_ROUND), .USE_DSP(USE_DSP), .PARAREL_FFT(PARAREL_FFT))
+            fft0(
+                .clk(clk),
+                .reset(reset),
+                .valid(flag_second_fft_valid),
+                .clk_i_data(clk_i_data),
+                .data_in_i(data_for_secondFFT_i),
+                .data_in_q(data_for_secondFFT_q),
+                .clk_o_data(),
+                .data_out_i(data_from_secondFFT_i),
+                .data_out_q(data_from_secondFFT_q),
+                .complete(flag_complete_second),
+                .stateFFT(stateFFT_0),
+                .flag_ready_recive(resiveFromSecond),/*input flags for output data*/
+                .flag_wayt_data(flag_wayt_data_second)/*flag can recive daat data*/
+            );
             
-//            interconnect_data_to_sFFT #(.SIZE_BUFFER(SIZE_BUFFER),/*log2(NFFT)*/
-//                                        .DATA_FFT_SIZE(DATA_FFT_SIZE)
-//                                        )                            
-//            _interconnect_data_to_sFFT(
-//                .clk(clk),
-//                .reset(reset),
-//                .in_data_i(data_in_i),
-//                .in_data_q(data_in_q),
-//                .valid(valid),
-//                .fft_wayt_data(flag_wayt_data_second),
-//                .out_data_i(data_for_secondFFT_i),
-//                .out_data_q(data_for_secondFFT_q),
-//                .outvalid(flag_second_fft_valid),
-//                .counter_data(counterReciveDataFFT),
-//                .wayt_data_second_NChet(flag_wayt_data_1)
-//            );
+            interconnect_data_to_sFFT_R4 #(.SIZE_BUFFER(SIZE_BUFFER),/*log2(NFFT)*/
+                                        .DATA_FFT_SIZE(DATA_FFT_SIZE)
+                                        )                            
+            _interconnect_data_to_sFFT(
+                .clk(clk),
+                .reset(reset),
+                .in_data_i(data_in_i),
+                .in_data_q(data_in_q),
+                .valid(valid),
+                .fft_wayt_data(flag_wayt_data_second),
+                .out_data_i(data_for_secondFFT_i),
+                .out_data_q(data_for_secondFFT_q),
+                .outvalid(flag_second_fft_valid),
+                .counter_data(counterReciveDataFFT),
+                .wayt_data_fft3(flag_wayt_data_3)
+            );
             
-//            interconnect_sFFT_to_two_data #(.SIZE_BUFFER(SIZE_BUFFER),/*log2(NFFT)*/
-//                                            .DATA_FFT_SIZE(SIZE_OUT_DATA_S_FFT)
-//                                            )
-//            _interconnect_sFFT_to_two_data(
-//                .clk(clk),
-//                .reset(reset),
-//                .fft_valid(flag_complete_second),
-//                .data_from_fft_i(data_from_secondFFT_i),
-//                .data_from_fft_q(data_from_secondFFT_q),
+            interconnect_sFFT_to_four_data #(.SIZE_BUFFER(SIZE_BUFFER),/*log2(NFFT)*/
+                                            .DATA_FFT_SIZE(SIZE_OUT_DATA_S_FFT)
+                                            )
+            _interconnect_sFFT_to_two_data(
+                .clk(clk),
+                .reset(reset),
+                .fft_valid(flag_complete_second),
+                .data_from_fft_i(data_from_secondFFT_i),
+                .data_from_fft_q(data_from_secondFFT_q),
                 
-//                .flag_ready_recive_chet(resiveFrom_0),
-//                .flag_ready_recive_Nchet(resiveFrom_1),
-//                .data_fft_chet_i(data_from_secondFFT_0_i),
-//                .data_fft_chet_q(data_from_secondFFT_0_q),
-//                .data_fft_Nchet_i(data_from_secondFFT_1_i),
-//                .data_fft_Nchet_q(data_from_secondFFT_1_q),
-//                .complete_chet(flag_complete_0),
-//                .complete_Nchet(flag_complete_1),
-//                .resiveFromSecond(resiveFromSecond)
-//            );
+                .flag_ready_recive_fft0(resiveFrom_0),
+                .flag_ready_recive_fft1(resiveFrom_1),
+                .flag_ready_recive_fft2(resiveFrom_2),
+                .flag_ready_recive_fft3(resiveFrom_3),
+                
+                .data_fft0_i(data_from_secondFFT_0_i),
+                .data_fft0_q(data_from_secondFFT_0_q),
+                .data_fft1_i(data_from_secondFFT_1_i),
+                .data_fft1_q(data_from_secondFFT_1_q),
+                .data_fft2_i(data_from_secondFFT_2_i),
+                .data_fft2_q(data_from_secondFFT_2_q),
+                .data_fft3_i(data_from_secondFFT_3_i),
+                .data_fft3_q(data_from_secondFFT_3_q),
+                
+                .complete_fft0(flag_complete_0),
+                .complete_fft1(flag_complete_1),
+                .complete_fft2(flag_complete_2),
+                .complete_fft3(flag_complete_3),
+                .resiveFromSecond(resiveFromSecond)
+            );
             
         end
 
@@ -673,7 +683,7 @@ module myFFT_R4
                                                .USE_ROUND(USE_ROUND),/*0 or 1*/
                                                .USE_DSP(USE_DSP),/*0 or 1*/
                                                .PARAPEL_THIS_FFT(PARAREL_THIS_FFT))
-            _interconnect_two_sFFT_to_mFFT(
+            _interconnect_four_sFFT_to_mFFT(
                 .clk(clk),
                 .reset(reset),
                 
