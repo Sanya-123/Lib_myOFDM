@@ -36,6 +36,7 @@ wire [15:0] out_data_q;
 wire tx_valid;
 wire done_transmit;
 wire [3:0] o_state_OFDM;
+reg wayt_read_data = 1'b1;
 //wire [7:0] d_FCH_data;
 //wire [15:0] d_fft_data_i;
 //wire [15:0] d_fft_data_q;
@@ -90,10 +91,18 @@ integer f_i, f_q, j;
 
 initial #30 valid <= 1'b1;
 
+reg reset = 0;
+
+initial 
+begin
+    #500 reset <= 1'b1;
+    #500 reset <= 1'b0;
+end
+
 initial 
 begin
     #2000 beginTX <= 1'b1;
-    #10 beginTX <= 1'b0;
+    #500 beginTX <= 1'b0;
 end
 
     ofdm_frame_gen #(.MEMORY_SYZE(16))
@@ -101,12 +110,13 @@ end
     (
         .clk(clk),
         .en(1'b1),
-        .reset(1'b0),
+        .reset(reset),
         .beginTX(beginTX),
         .valid(valid),
         .in_data(in_data),
         .data_frame_size(10),
         .modulation(4),
+        .i_wayt_read_data(wayt_read_data/*din_valid_0*/),
         .flag_ready_read(flag_ready_read),
         .out_data_i(out_data_i),
         .out_data_q(out_data_q),

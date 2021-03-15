@@ -52,17 +52,17 @@ module ofdm_payload_gen #(parameter DATA_SIZE = 16)(
     input [2:0] modulation;
     output flag_ready_recive;
     output reg out_done = 1'b0;
-    (* dont_touch = "true", MARK_DEBUG="true" *) output reg [DATA_SIZE-1:0] out_data_i;
-    (* dont_touch = "true", MARK_DEBUG="true" *) output reg [DATA_SIZE-1:0] out_data_q;
+    output reg [DATA_SIZE-1:0] out_data_i;
+    output reg [DATA_SIZE-1:0] out_data_q;
     
-    (* dont_touch = "true", MARK_DEBUG="true" *) output reg [15:0] counter_data = 0;
+    output reg [15:0] counter_data = 0;
     input wayt_recive_data;//flag от том что можно отправлять
     
     localparam N_DATA = 192;//количество гармоник с информццией
     localparam N_DATA_BYTS_MAX = 192;//максимальное число информации на 1 символ при максимаольной модуляции
     
-    (* dont_touch = "true", MARK_DEBUG="true" *) reg [15:0] counter_data_mod = 0;
-    (* dont_touch = "true", MARK_DEBUG="true" *) reg [15:0] counter_cobyBytes = 0;//reg for modulation symbols
+    reg [15:0] counter_data_mod = 0;
+    reg [15:0] counter_cobyBytes = 0;//reg for modulation symbols
     
     reg [DATA_SIZE-1:0] symbol_i [N_DATA-1:0];//
     reg [DATA_SIZE-1:0] symbol_q [N_DATA-1:0];//

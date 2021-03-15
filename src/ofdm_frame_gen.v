@@ -168,8 +168,8 @@ module ofdm_frame_gen #(parameter MEMORY_SYZE = 16/*log2(mem size) or number of 
     assign d_ofdm_payload_valid = data_symbols_counter == 0 ? FCH_valid : valid;
     
     wire symbol_out_done;
-    (* dont_touch = "true", MARK_DEBUG="true" *)  wire [15:0] symbol_for_ifft_i;
-    (* dont_touch = "true", MARK_DEBUG="true" *)  wire [15:0] symbol_for_ifft_q;
+    wire [15:0] symbol_for_ifft_i;
+    wire [15:0] symbol_for_ifft_q;
     wire fft_flag_wayt_data;
     wire ad_cp_wayt_recive_data;
     
@@ -194,8 +194,8 @@ module ofdm_frame_gen #(parameter MEMORY_SYZE = 16/*log2(mem size) or number of 
         .wayt_recive_data(fft_flag_wayt_data)
     );
     
-    (* dont_touch = "true", MARK_DEBUG="true" *) wire [21:0] symbol_OFDM_i;
-    (* dont_touch = "true", MARK_DEBUG="true" *) wire [21:0] symbol_OFDM_q;
+    wire [21:0] symbol_OFDM_i;
+    wire [21:0] symbol_OFDM_q;
     wire complete_fft;
     
     myFFT_R4
@@ -226,8 +226,8 @@ module ofdm_frame_gen #(parameter MEMORY_SYZE = 16/*log2(mem size) or number of 
     );
     
     wire add_cp_output_en;
-    (* dont_touch = "true", MARK_DEBUG="true" *) wire [15:0] add_cp_out_data_i;
-    (* dont_touch = "true", MARK_DEBUG="true" *) wire [15:0] add_cp_out_data_q;
+    wire [15:0] add_cp_out_data_i;
+    wire [15:0] add_cp_out_data_q;
     
     ofdm_add_cp #(.DATA_SIZE(16),
                   .SYMBOLS_SIZE(256),
