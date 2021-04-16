@@ -34,12 +34,12 @@ wire [15:0] out_data_q;
 wire tx_valid;
 wire done_transmit;
 wire [3:0] o_state_OFDM;
-wire [7:0] d_FCH_data;
-wire [15:0] d_fft_data_i;
-wire [15:0] d_fft_data_q;
-wire [15:0] d_in_fft_data_i;
-wire [15:0] d_in_fft_data_q;
-wire d_complete_fft;
+//wire [7:0] d_FCH_data;
+//wire [15:0] d_fft_data_i;
+//wire [15:0] d_fft_data_q;
+//wire [15:0] d_in_fft_data_i;
+//wire [15:0] d_in_fft_data_q;
+//wire d_complete_fft;
 reg wayt_read_data = 1'b1;
 
 wire din_valid_0;
@@ -107,6 +107,33 @@ begin
     #50 beginTX <= 1'b0;
 end
 
+    wire [15:0] mod_data_i;
+    wire [15:0] mod_data_q;
+    wire flag_ready_recive;
+    wire walid_data_mod;
+    
+    wire [15:0] d_data_symbols_counter;
+    wire [15:0] d_counter_sample;
+    
+    wire [15:0] d_in_fft_data_i;
+    wire [15:0] d_in_fft_data_q;
+    wire d_fft_valid;
+//    
+    
+    ofdm_modulation #(.DATA_SIZE(16))
+    _ofdm_modulation(
+        .i_clk(clk),
+        .i_reset(1'b0),
+        .i_valid(valid),
+        .i_modulation(3'd4),
+        .i_data(in_data),
+        .o_wayt_res_data(flag_ready_read),
+        .o_valid_data(walid_data_mod),
+        .i_wayt_data(flag_ready_recive),
+        .o_data_i(mod_data_i),
+        .o_data_q(mod_data_q)
+    );
+
     ofdm_frame_gen #(.MEMORY_SYZE(16))
     _ofdm_frame_gen
     (
@@ -114,26 +141,26 @@ end
         .en(1'b1),
         .reset(1'b0),
         .beginTX(beginTX),
-        .valid(valid),
-        .in_data(in_data),
+        .valid(walid_data_mod),
+//        .in_data(in_data),
+        .i_mod_data_i(mod_data_i),
+        .i_mod_data_q(mod_data_q),
         .data_frame_size(10),
         .modulation(4),
-        .i_wayt_read_data(wayt_read_data/*din_valid_0*/),
+        .i_wayt_read_data(1'b1/*flag_ready_recive*//*din_valid_0*/),
         
-        .flag_ready_read(flag_ready_read),
+        .flag_ready_read(flag_ready_recive),
         .out_data_i(out_data_i),
         .out_data_q(out_data_q),
         .tx_valid(tx_valid),
         .done_transmit(done_transmit),
-        .o_state_OFDM(o_state_OFDM),
-        
-        
-        .d_FCH_data(d_FCH_data),
-        .d_fft_data_i(d_fft_data_i),
-        .d_fft_data_q(d_fft_data_q),
+        .o_state_OFDM(o_state_OFDM)
+        ,
+        .d_data_symbols_counter(d_data_symbols_counter),
+        .d_counter_sample(d_counter_sample),
         .d_in_fft_data_i(d_in_fft_data_i),
         .d_in_fft_data_q(d_in_fft_data_q),
-        .d_complete_fft(d_complete_fft)
+        .d_fft_valid(d_fft_valid)
     );
     
     reg cld_data_out = 1'b0;

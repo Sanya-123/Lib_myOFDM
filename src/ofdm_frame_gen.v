@@ -27,7 +27,9 @@ module ofdm_frame_gen #(parameter MEMORY_SYZE = 16/*log2(mem size) or number of 
         reset,
         beginTX,
         valid,
-        in_data,
+//        in_data,
+        i_mod_data_i,
+        i_mod_data_q,
         data_frame_size,
         modulation,
         i_wayt_read_data,
@@ -36,15 +38,19 @@ module ofdm_frame_gen #(parameter MEMORY_SYZE = 16/*log2(mem size) or number of 
         out_data_q,
         tx_valid,
         done_transmit,
-        o_state_OFDM,
+        o_state_OFDM
         //debug
-        d_FCH_data,
-        d_fft_data_i,
-        d_fft_data_q,
+        ,
+        d_data_symbols_counter,
+        d_counter_sample,
+//        d_FCH_data,
+//        d_fft_data_i,
+//        d_fft_data_q,
         d_in_fft_data_i,
         d_in_fft_data_q,
-        d_complete_fft,
-        d_ofdm_payload_valid
+        d_fft_valid
+//        d_complete_fft,
+//        d_ofdm_payload_valid
     );
     
     input clk;
@@ -52,7 +58,9 @@ module ofdm_frame_gen #(parameter MEMORY_SYZE = 16/*log2(mem size) or number of 
     input reset;
     input beginTX;
     input valid;
-    input [7:0] in_data;
+//    input [7:0] in_data;
+    input [15:0] i_mod_data_i;
+    input [15:0] i_mod_data_q;
     input [7:0] data_frame_size;//количество отправляемых кадров с информауией
     input [2:0] modulation;//тип модуляции для данных
     input i_wayt_read_data;
@@ -65,16 +73,19 @@ module ofdm_frame_gen #(parameter MEMORY_SYZE = 16/*log2(mem size) or number of 
     output reg done_transmit = 1'b0;
     output [3:0] o_state_OFDM;
     //debug
-    output [7:0] d_FCH_data;
-    output [15:0] d_fft_data_i;
-    output [15:0] d_fft_data_q;
+    output [15:0] d_data_symbols_counter;
+    output [15:0] d_counter_sample;
+//    output [7:0] d_FCH_data;
+//    output [15:0] d_fft_data_i;
+//    output [15:0] d_fft_data_q;
     output [15:0] d_in_fft_data_i;
     output [15:0] d_in_fft_data_q;
-    output d_complete_fft;
-    output d_ofdm_payload_valid;
+    output d_fft_valid;
+//    output d_complete_fft;
+//    output d_ofdm_payload_valid;
     
-    
-    localparam SYMBOL_SIZE = 264;
+    localparam CP_LENGHT = 64;
+    localparam SYMBOL_SIZE = 256 + CP_LENGHT;
     
     reg [3:0] state_OFDM = 0;
     assign o_state_OFDM = state_OFDM;
@@ -88,20 +99,24 @@ module ofdm_frame_gen #(parameter MEMORY_SYZE = 16/*log2(mem size) or number of 
     
     reg [15:0] data_symbols_counter = 0;
     
-    wire [7:0] code_data;
+//    assign d_data_symbols_counter = data_symbols_counter;
     
-    bypass_coder
-    _coder(
-        .clk(clk),
-        .in_data(in_data),
-        .out_data(code_data)
-    );
+//    wire [7:0] code_data;
     
-    reg FCH_valid = 0;
-    reg [7:0] FCH_data = 0;
+//    bypass_coder
+//    _coder(
+//        .clk(clk),
+//        .in_data(in_data),
+//        .out_data(code_data)
+//    );
+    
+    wire FCH_valid;
+    wire [15:0] FCH_data_i;
+    wire [15:0] FCH_data_q;
+//    reg [7:0] FCH_data = 0;
     
     localparam FCH_modulation = `BPSK_MOD;
-    reg [15:0] counter_FCH = 0;
+    wire [15:0] counter_FCH;
     
     localparam subchanale_bitmap_used = 6'b000000;
     localparam repition_coding_indicator = 2'b00;
@@ -109,6 +124,18 @@ module ofdm_frame_gen #(parameter MEMORY_SYZE = 16/*log2(mem size) or number of 
     
     wire ofdm_payload_gen_flag_ready_recive;
     reg old_ofdm_payload_gen_flag_ready_recive = 0;
+        
+    wire symbol_out_done;
+    wire [15:0] symbol_for_ifft_i;
+    wire [15:0] symbol_for_ifft_q;
+    wire fft_flag_wayt_data;
+    wire ad_cp_wayt_recive_data;
+    
+        
+    wire [21:0] symbol_OFDM_i;
+    wire [21:0] symbol_OFDM_q;
+    wire complete_fft;
+    
     
     always @(posedge clk)
     begin
@@ -119,8 +146,8 @@ module ofdm_frame_gen #(parameter MEMORY_SYZE = 16/*log2(mem size) or number of 
         else if(state_OFDM == state_IDLE) begin end
         else
         begin
-            old_ofdm_payload_gen_flag_ready_recive <= ofdm_payload_gen_flag_ready_recive;
-            if({old_ofdm_payload_gen_flag_ready_recive,ofdm_payload_gen_flag_ready_recive} == 2'b10)//по изменению стостояния внизу был сформирован 1 пакет символов для fft
+            old_ofdm_payload_gen_flag_ready_recive <= /*ofdm_payload_gen_flag_ready_recive*/complete_fft;
+            if({old_ofdm_payload_gen_flag_ready_recive,/*ofdm_payload_gen_flag_ready_recive*/complete_fft} == 2'b10)//по изменению стостояния внизу был сформирован 1 пакет символов для fft
             begin
                 if(data_symbols_counter < (data_frame_size + 1/*FCH symbols*/))  data_symbols_counter <= data_symbols_counter + 1; 
                 else if(done_transmit)  data_symbols_counter <= 0;
@@ -131,73 +158,103 @@ module ofdm_frame_gen #(parameter MEMORY_SYZE = 16/*log2(mem size) or number of 
     
     
     
-    always @(posedge clk)
-    begin : FCH_data_gen
-        if(reset)
-        begin
-            counter_FCH <= 0;
-            FCH_valid <= 1'b0;
-        end
-        else if(state_OFDM == state_IDLE) begin end
-        else
-        begin
-            if(data_symbols_counter == 0)
-            begin
-                if(ofdm_payload_gen_flag_ready_recive)
-                begin
-                    FCH_valid <= 1'b1;
-                    counter_FCH <= counter_FCH + 1;
-                    case (counter_FCH)
-                        0:FCH_data <= {repition_coding_indicator[0], 1'b0, subchanale_bitmap_used[5:0]};
-                        1:FCH_data <= {data_frame_size[3:0], coding_indicator[2:0], repition_coding_indicator[1]};
-                        2:FCH_data <= {4'b0000, data_frame_size[7:4]};
-                        default:FCH_data <= 8'd0;
-                    endcase
-                end
-                else    FCH_valid <= 1'b0;
-            end
-            else
-            begin
-                FCH_valid <= 1'b0;
-                counter_FCH <= 0;
-            end
-        end
-    end
+//    always @(posedge clk)
+//    begin : FCH_data_gen
+//        if(reset)
+//        begin
+//            counter_FCH <= 0;
+//            FCH_valid <= 1'b0;
+//        end
+//        else if(state_OFDM == state_IDLE) begin end
+//        else
+//        begin
+//            if(data_symbols_counter == 0)
+//            begin
+//                if(ofdm_payload_gen_flag_ready_recive)
+//                begin
+//                    FCH_valid <= 1'b1;
+//                    counter_FCH <= counter_FCH + 1;
+//                    case (counter_FCH)
+//                        0:FCH_data <= {repition_coding_indicator[0], 1'b0, subchanale_bitmap_used[5:0]};
+//                        1:FCH_data <= {data_frame_size[3:0], coding_indicator[2:0], repition_coding_indicator[1]};
+//                        2:FCH_data <= {4'b0000, data_frame_size[7:4]};
+//                        default:FCH_data <= 8'd0;
+//                    endcase
+//                end
+//                else    FCH_valid <= 1'b0;
+//            end
+//            else
+//            begin
+//                FCH_valid <= 1'b0;
+//                counter_FCH <= 0;
+//            end
+//        end
+//    end
     
-    assign d_FCH_data = FCH_data;
-    assign d_ofdm_payload_valid = data_symbols_counter == 0 ? FCH_valid : valid;
+    ofdm_fch_gen#(.DATA_SIZE(16))
+    _ofdm_fch_gen(
+        .i_clk(clk),
+        .i_reset(reset),
+        .i_wayt_output_data(ofdm_payload_gen_flag_ready_recive),
+        .i_data_frame_size(data_frame_size),
+        .i_fch_frame((data_symbols_counter == 0) & (state_OFDM == state_short_preamble)),
+        //....
+        .o_data_i(FCH_data_i),
+        .o_data_q(FCH_data_q),
+        .o_valid(FCH_valid),
+        .o_fch_counter(counter_FCH)
+    );
     
-    wire symbol_out_done;
-    wire [15:0] symbol_for_ifft_i;
-    wire [15:0] symbol_for_ifft_q;
-    wire fft_flag_wayt_data;
-    wire ad_cp_wayt_recive_data;
+//    assign d_FCH_data = FCH_data;
+//    assign d_ofdm_payload_valid = data_symbols_counter == 0 ? FCH_valid : valid;
+
+//    wire ofdm_payload_valid = data_symbols_counter == 0 ? FCH_valid : valid /*& flag_ready_read*/;
+////    wire [7:0] ofdm_payload_in_data = data_symbols_counter == 0 ? FCH_data : code_data;
+//    wire [15:0] ofdm_payload_in_data_i = data_symbols_counter == 0 ? FCH_data_i : i_mod_data_i;
+//    wire [15:0] ofdm_payload_in_data_q = data_symbols_counter == 0 ? FCH_data_q : i_mod_data_q;
+
+////    wire [2:0] ofdm_payload_modulation = data_symbols_counter == 0 ? FCH_modulation : modulation;
     
-    wire ofdm_payload_valid = data_symbols_counter == 0 ? FCH_valid : valid /*& flag_ready_read*/;
-    wire [7:0] ofdm_payload_in_data = data_symbols_counter == 0 ? FCH_data : code_data;
-    wire [2:0] ofdm_payload_modulation = data_symbols_counter == 0 ? FCH_modulation : modulation;
+//    assign flag_ready_read = data_symbols_counter == 0 ? 0 : data_symbols_counter < (data_frame_size + 1/*FCH symbols*/) ? ofdm_payload_gen_flag_ready_recive : 0;
+
+    wire ofdm_payload_valid = ((state_OFDM == state_short_preamble) | (state_OFDM == state_IDLE)) ? FCH_valid : valid /*& flag_ready_read*/;
+    wire [15:0] ofdm_payload_in_data_i = ((state_OFDM == state_short_preamble) | (state_OFDM == state_IDLE)) ? FCH_data_i : i_mod_data_i;
+    wire [15:0] ofdm_payload_in_data_q = ((state_OFDM == state_short_preamble) | (state_OFDM == state_IDLE)) ? FCH_data_q : i_mod_data_q;
+    assign flag_ready_read = ((state_OFDM == state_short_preamble) | (state_OFDM == state_IDLE)) ? 0 : data_symbols_counter < (data_frame_size + 1/*FCH symbols*/) ? ofdm_payload_gen_flag_ready_recive : 0;
     
-    assign flag_ready_read = data_symbols_counter == 0 ? 0 : data_symbols_counter < (data_frame_size + 1/*FCH symbols*/) ? ofdm_payload_gen_flag_ready_recive : 0;
+//    ofdm_payload_gen #(.DATA_SIZE(16))
+//    _ofdm_payload(
+//        .clk(clk),
+//        .reset(reset),
+//        .in_data_en(ofdm_payload_valid),
+//        .in_data(ofdm_payload_in_data),
+//        .modulation(ofdm_payload_modulation),
+//        .flag_ready_recive(ofdm_payload_gen_flag_ready_recive),
+//        .out_done(symbol_out_done),
+//        .out_data_i(symbol_for_ifft_i),
+//        .out_data_q(symbol_for_ifft_q),
+//        .counter_data(),
+//        .wayt_recive_data(fft_flag_wayt_data)
+//    );
     
     ofdm_payload_gen #(.DATA_SIZE(16))
     _ofdm_payload(
-        .clk(clk),
-        .reset(reset),
+        .i_clk(clk),
+        .i_reset(reset),
         .in_data_en(ofdm_payload_valid),
-        .in_data(ofdm_payload_in_data),
-        .modulation(ofdm_payload_modulation),
-        .flag_ready_recive(ofdm_payload_gen_flag_ready_recive),
+        .in_data_i(ofdm_payload_in_data_i),
+        .in_data_q(ofdm_payload_in_data_q),
+        .o_flag_ready_recive(ofdm_payload_gen_flag_ready_recive),
         .out_done(symbol_out_done),
         .out_data_i(symbol_for_ifft_i),
         .out_data_q(symbol_for_ifft_q),
-        .counter_data(),
-        .wayt_recive_data(fft_flag_wayt_data)
+        .o_counter_data(),
+        .i_wayt_recive_data(fft_flag_wayt_data)
     );
     
-    wire [21:0] symbol_OFDM_i;
-    wire [21:0] symbol_OFDM_q;
-    wire complete_fft;
-    
+    /*FFT R2:FFT 256 optimal time/resource 111100000 in OFDM systeam optimum 111000000*/
+    /*FFT R4:FFT 256 optimal time/resource 111110000 in OFDM systeam optimum 110000000*/
+    //TODO не при всех оптимизация работает генератора символа
     myFFT_R4
     #(.SIZE_BUFFER(8),/*log2(NFFT)*/
       .DATA_FFT_SIZE(16),
@@ -207,22 +264,20 @@ module ofdm_frame_gen #(parameter MEMORY_SYZE = 16/*log2(mem size) or number of 
       .MIN_FFT_x4(1),
       .USE_ROUND(1),/*0 or 1*/
       .USE_DSP(1),/*0 or 1*/
-      .PARAREL_FFT(9'b111111111)/*example 9'b 111000000 fft 256,128,64 matht pararel anaouther fft math conv; FFT 256 optimal time/resource 111100000 in OFDM systeam optimum 111000000*/
+      .PARAREL_FFT(9'b110000000)/*example 9'b 111000000 fft 256,128,64 matht pararel anaouther fft math conv;*/
     )
     _fft_OFDM(
-        .clk(clk),
-        .reset(reset),
-        .valid(symbol_out_done),
-        .clk_i_data(clk),
-        .data_in_i(symbol_for_ifft_i),
-        .data_in_q(symbol_for_ifft_q),
-        .clk_o_data(),
-        .data_out_i(symbol_OFDM_i),
-        .data_out_q(symbol_OFDM_q),
-        .complete(complete_fft),
-        .stateFFT(),
-        .flag_wayt_data(fft_flag_wayt_data),
-        .flag_ready_recive(ad_cp_wayt_recive_data)
+        .i_clk(clk),
+        .i_reset(reset),
+        .i_valid(symbol_out_done),
+        .i_data_in_i(symbol_for_ifft_i),
+        .i_data_in_q(symbol_for_ifft_q),
+        .o_data_out_i(symbol_OFDM_i),
+        .o_data_out_q(symbol_OFDM_q),
+        .o_complete(complete_fft),
+        .o_stateFFT(),
+        .o_flag_wayt_data(fft_flag_wayt_data),
+        .i_flag_ready_recive(ad_cp_wayt_recive_data)
     );
     
     wire add_cp_output_en;
@@ -231,12 +286,12 @@ module ofdm_frame_gen #(parameter MEMORY_SYZE = 16/*log2(mem size) or number of 
     
     ofdm_add_cp #(.DATA_SIZE(16),
                   .SYMBOLS_SIZE(256),
-                  .CP_LENGHT(8))
+                  .CP_LENGHT(CP_LENGHT))
     _ofdm_add_cp(
         .clk(clk),
         .reset(reset),
         .in_data_en(complete_fft),
-        .i_wayt_read_data(i_wayt_read_data),
+        .i_wayt_read_data(i_wayt_read_data & (state_OFDM == state_frame_data)),
         .in_data_i(symbol_OFDM_i[21:6]),
         .in_data_q(symbol_OFDM_q[21:6]),
         .output_en(add_cp_output_en),
@@ -245,12 +300,13 @@ module ofdm_frame_gen #(parameter MEMORY_SYZE = 16/*log2(mem size) or number of 
         .o_wayt_recive_data(ad_cp_wayt_recive_data)
     );
     
-    assign d_fft_data_i = symbol_OFDM_i[21:6];
-    assign d_fft_data_q = symbol_OFDM_q[21:6];
+//    assign d_fft_data_i = symbol_OFDM_i[21:6];
+//    assign d_fft_data_q = symbol_OFDM_q[21:6];
     
     assign d_in_fft_data_i = symbol_for_ifft_i;
     assign d_in_fft_data_q = symbol_for_ifft_q;
-    assign d_complete_fft = complete_fft;
+    assign d_fft_valid = symbol_out_done;
+//    assign d_complete_fft = complete_fft;
     
     reg [8:0] preambleAddres = 0;
     wire [15:0] out_short_preamble_i;
@@ -316,7 +372,8 @@ module ofdm_frame_gen #(parameter MEMORY_SYZE = 16/*log2(mem size) or number of 
     reg [15:0] counter_sample = 0;
     reg flag_reset_counters = 1'b0;
     
-    
+    assign d_data_symbols_counter = /*symbols_counter*/data_symbols_counter;
+    assign d_counter_sample = counter_sample;
     
     //TX
     always @(posedge clk)
@@ -338,7 +395,7 @@ module ofdm_frame_gen #(parameter MEMORY_SYZE = 16/*log2(mem size) or number of 
                 else                                counter_sample <= 0;
                 
                 
-                if(counter_sample == SYMBOL_SIZE)       symbols_counter <= symbols_counter + 1;
+                if((counter_sample == (SYMBOL_SIZE - 1)) & add_cp_output_en)       symbols_counter <= symbols_counter + 1;
                 
                 if(symbols_counter == (data_frame_size + 1/*FCH symbols*/))  flag_reset_counters <= 1'b1;
                 if(symbols_counter == (data_frame_size + 1/*FCH symbols*/))  done_transmit <= 1'b1;

@@ -3,9 +3,9 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 11.03.2021 16:00:11
+// Create Date: 12.04.2021 14:50:43
 // Design Name: 
-// Module Name: test_rx
+// Module Name: tb_txrx
 // Project Name: 
 // Target Devices: 
 // Tool Versions: 
@@ -19,24 +19,58 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-//`include "top.svh"
 
-module test_rx(
-    i_clk,
-    i_reset,
-    i_clk_data,
-    i_rx_valid,
-    i_data_i,
-    i_data_q,
-    viewer
-    );
+module tb_txrx();
+
+reg clk100 = 0;
+always #5 clk100 = !clk100;
+reg clk50 = 0;
+always #10 clk50 = !clk50;
+
+wire [15:0] data_tx_i;
+wire [15:0] data_tx_q;
+
+reg beginTx = 0;
+initial #1000 beginTx = 1;
+
+    testtx 
+    testGenaData(
+    .clk(clk100),
+    .data(0),
+    .data1(0),
+    .mode(3'd4),
+    .reset(0),
+    .beginTX(beginTx),
     
-    input i_clk;
-    input i_reset;
-    input i_clk_data;
-    input i_rx_valid;
-    input [15:0] i_data_i;
-    input [15:0] i_data_q;
+    .clk_out_data(/*clk_data*/clk50),
+    .wayt_output_data(/*en_sin*/1),
+    .out_i(data_tx_i),
+    .out_q(data_tx_q)
+   );
+    
+//   test_rx
+//   _test_recive(
+//        .i_clk(clk100),
+//        .i_reset(0),
+//        .i_clk_data(clk50),
+//        .i_rx_valid(1),
+//        .i_data_i(data_tx_i),
+//        .i_data_q(data_tx_q)
+//    );
+
+    wire i_clk;
+    wire i_reset;
+    wire i_clk_data;
+    wire i_rx_valid;
+    wire [15:0] i_data_i;
+    wire [15:0] i_data_q;
+    
+    assign i_clk = clk100;
+    assign i_reset = 0;
+    assign i_clk_data = clk50;
+    assign i_rx_valid = 1;
+    assign i_data_i = {data_tx_i[15], data_tx_i[15], data_tx_i[15], data_tx_i[15:3]};
+    assign i_data_q = {data_tx_q[15], data_tx_q[15], data_tx_q[15], data_tx_q[15:3]}; 
     
     (* dont_touch = "true", MARK_DEBUG="true" *) wire [15:0] w_data_i;
     (* dont_touch = "true", MARK_DEBUG="true" *) wire [15:0] w_data_q;
@@ -69,12 +103,12 @@ module test_rx(
     (* dont_touch = "true", MARK_DEBUG="true" *) wire [16-1:0] o_equ_data_q;
     (* dont_touch = "true", MARK_DEBUG="true" *) wire o_equ_valid;
     
-    output t_viewer viewer;
+//    output t_viewer viewer;
     
-    assign    viewer.sync	= fft_valid;
-    assign    viewer.dat	= {fft_data_q, fft_data_i};
-    assign    viewer.ena 	= 1'b1;
-    assign    viewer.clk    = i_clk;
+//    assign    viewer.sync	= fft_valid;
+//    assign    viewer.dat	= {fft_data_q, fft_data_i};
+//    assign    viewer.ena 	= 1'b1;
+//    assign    viewer.clk    = i_clk;
     
     
     ofdm_frame_res #(   .DATA_SIZE(16)
@@ -226,5 +260,5 @@ module test_rx(
                                      // active-low when rst or wr_rst_busy is active high.
 
    );
-   
+ 
 endmodule

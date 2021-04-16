@@ -32,7 +32,8 @@ module ofdm_remove_cp #(  parameter DATA_SIZE = 16,
     i_frame_sync,
     out_valid,
     out_data_i,
-    out_data_q
+    out_data_q,
+    o_cp_removed
 );
 
 input i_clk;
@@ -45,12 +46,14 @@ input i_frame_sync;
 output out_valid;
 output [DATA_SIZE-1:0] out_data_i;
 output [DATA_SIZE-1:0] out_data_q;
+output o_cp_removed;
 
 reg [15:0] counter = 0;
 
 assign out_valid = counter >= CP_LENGHT ? i_valid : 0;
 assign out_data_i = out_valid ? in_data_i : 0;
 assign out_data_q = out_valid ? in_data_q : 0;
+assign o_cp_removed = counter >= CP_LENGHT;
 
 always @(posedge i_clk)
 begin

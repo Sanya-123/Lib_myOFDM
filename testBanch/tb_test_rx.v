@@ -80,7 +80,7 @@ begin
         end
     end
     
-    for(i = 0; i < 2000;)
+    for(i = 0; i < 3000;)
     begin
         #8
         if(i_rx_valid)
@@ -89,6 +89,8 @@ begin
             $fscanf(f_q, "%d", tmp_data_q_r);
             data_i_r = $signed(tmp_data_i_r)/1;
             data_q_r = $signed(tmp_data_q_r)/1;
+            
+            
             
             
             i = i + 1;

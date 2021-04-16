@@ -18,7 +18,7 @@
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
-`include "commonOFDM.vh"
+`include "commonModulation.vh"
 
 module mapModulations #(parameter DATA_SIZE = 16, parameter MODULATION = "BPSK" /*BPSK QPSK QAM16 QAM64 QAM256*/)(
     clk,

@@ -278,7 +278,7 @@ module ofdm_freq_sync#( parameter DATA_SIZE = 16
     #(
       .pIDAT_W(DATA_SIZE) ,
       .pDDS_W(14) ,
-      .pODAT_W(DATA_SIZE) ,
+      .pODAT_W(DATA_SIZE+1) ,
       .pMUL_W(0) ,
       .pCONJ(0) ,
       .pUSE_DSP_ADD(1) , // use altera dsp internal adder or not (differ registers)

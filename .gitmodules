@@ -1,0 +1,3 @@
+[submodule "Lib_FFT"]
+	path = Lib_FFT
+	url = http://timon.home/krivtsun.aa/Lib_myFFT.git

@@ -183,10 +183,10 @@ _ofdm_freq_sync(
     .out_data_q(o_data_q),
     .i_findPreamble_a(find_preamble_a),
     .i_findPreamble_b(find_preamble_b),
-    .i_preamble_a_i(out_preamble_a_i),
-    .i_preamble_a_q(out_preamble_a_q),
-    .i_preamble_b_i(out_preamble_b_i),
-    .i_preamble_b_q(out_preamble_b_q),
+    .i_preamble_a_i(/*out_preamble_a_i*/100000),
+    .i_preamble_a_q(/*out_preamble_a_q*/0),
+    .i_preamble_b_i(/*out_preamble_b_i*/100000),
+    .i_preamble_b_q(/*out_preamble_b_q*/0),
     .out_valid(out_valid),
     .o_wayt_data(o_wayt_data)
     

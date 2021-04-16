@@ -33,6 +33,9 @@ reg [7:0] in_data;
 reg [7:0] in_data_mas [199:0];
 reg wayt_recive = 1'b1;
 
+wire walid_data_mod;
+wire wayt_res_data;
+
 initial
     $readmemh("test_ofdm_payload_gen.mem",in_data_mas);
 
@@ -47,9 +50,10 @@ initial
     begin
         #40
         in_data_en = 1'b1;
-        for(i = 0; i < 200; i = i + 1)
+        for(i = 0; i < 200; )
         begin
-            in_data = in_data_mas[i];
+            if(wayt_res_data)   in_data = in_data_mas[i];
+            if(wayt_res_data)   i = i + 1;   
             #10;
         end
         #40
@@ -81,21 +85,38 @@ localparam SUBCARRIER_MASK_L =
 
 localparam SUBCARRIER_MASK = {SUBCARRIER_MASK_R, SUBCARRIER_MASK_L};
 
-
+    wire [15:0] mod_data_i;
+    wire [15:0] mod_data_q;
+    wire o_flag_ready_recive;
+    
+    ofdm_modulation #(.DATA_SIZE(16))
+    _ofdm_modulation(
+        .i_clk(clk),
+        .i_reset(1'b0),
+        .i_valid(in_data_en),
+        .i_modulation(3'b100),
+        .i_data(in_data),
+        .o_wayt_res_data(wayt_res_data),
+        .o_valid_data(walid_data_mod),
+        .i_wayt_data(o_flag_ready_recive),
+        .o_data_i(mod_data_i),
+        .o_data_q(mod_data_q)
+    );
 
         
     ofdm_payload_gen #(.DATA_SIZE(16))
     _ofdm_payload_gen(
-    .clk(clk),
-    .reset(1'b0),
-    .in_data_en(in_data_en),
-    .in_data(in_data),
-    .modulation(3'd0),
-    .out_done(out_done),
-    .out_data_i(out_data_i),
-    .out_data_q(out_data_q),
-    .counter_data(counter_data),
-    .wayt_recive_data(wayt_recive)
+        .i_clk(clk),
+        .i_reset(1'b0),
+        .in_data_en(walid_data_mod),
+        .in_data_i(mod_data_i),
+        .in_data_q(mod_data_q),
+        .o_flag_ready_recive(o_flag_ready_recive),
+        .out_done(out_done),
+        .out_data_i(out_data_i),
+        .out_data_q(out_data_q),
+        .o_counter_data(counter_data),
+        .i_wayt_recive_data(wayt_recive)
     );
 
 endmodule
